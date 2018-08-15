@@ -1,9 +1,12 @@
+const uuid4 = require('uuid/v4')
+
 class Node {
-    constructor(nodeId, selfURL, peers, chain, endpoints) {
-        this.nodeId = nodeId
-        this.selfURL = selfURL
-        this.peers = peers
-        this.chain = chain
-        this.endpoints = endpoints
-    }
+  constructor(selfURL, peers, chain) {
+    this.nodeId = uuid4()
+    this.selfURL = selfURL
+    this.peers = peers
+    this.chain = chain
+  }
 }
+
+export default Node

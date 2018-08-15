@@ -6,6 +6,25 @@ const httpPort = process.env.HTTP_PORT || 3001
 const p2pPort = process.env.P2P_PORT || 6001
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : []
 
+const sockets = []
+
+const initConnection = (ws) => {
+  sockets.push(ws)
+}
+
+const initP2PServer = () => {
+  const server = new WebSocket.Server({ port: p2pPort })
+  server.on('connection', ws => initConnection(ws))
+}
+
+const connectToPeers = (newPeers) => {
+  newPeers.forEach((peer) => {
+    const ws = new WebSocket(peer)
+    ws.on('open', () => initConnection(ws))
+    ws.on('error', () => console.log('Connection failed'))
+  })
+}
+
 const initHttpServer = () => {
   const app = express()
   app.use(bodyParser.json())
@@ -59,11 +78,12 @@ const initHttpServer = () => {
   })
 
   app.get('/peers', (req, res) => {
-    // TODO
+    res.send(sockets.map(s => `${s._socket.remoteAddress} : ${s._socket.remotePort}`))
   })
 
-  app.post('/peers/connect', (req, res) => {
-    // TODO
+  app.post('/peers/add', (req, res) => {
+    connectToPeers([req.body.peer])
+    res.send()
   })
 
   app.post('/peers/notify-new-block', (req, res) => {
@@ -77,4 +97,10 @@ const initHttpServer = () => {
   app.post('/mining/submit', (req, res) => {
     // TODO
   })
+
+  app.listen(httpPort, () => console.log(`Listening http on port ${httpPort}`))
 }
+
+connectToPeers(initialPeers)
+initHttpServer()
+initP2PServer()

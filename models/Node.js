@@ -4,6 +4,7 @@ class Node {
         this.selfURL = selfURL
         this.peers = peers
         this.chain = chain
-        this.endpoints = endpoints
     }
 }
+
+export default Node

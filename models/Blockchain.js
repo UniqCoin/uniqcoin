@@ -6,3 +6,5 @@ class Blockchain {
         this.miningJobs = miningJobs
     }
 }
+
+export default Blockchain

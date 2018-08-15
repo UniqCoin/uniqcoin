@@ -27,22 +27,24 @@ class Transaction {
     }
 }
 
-function signData(data, privKey) {
+const signData = (data, privKey) => {
     let keyPair = secp256k1.keyFromPrivate(privKey)
     let signature = keyPair.sign(data)
     return [signature.r.toString(16), signature.s.toString(16)]
 }
 
-function decompressPublicKey(pubKeyCompressed) {
+const decompressPublicKey = (pubKeyCompressed) => {
     let pubKeyX = pubKeyCompressed.substring(0, 64)
     let pubKeyYOdd = parseInt(pubKeyCompressed.substring(64))
     let pubKeyPoint = secp256k1.curve.pointFromX(pubKeyX, pubKeyYOdd)
     return pubKeyPoint
 }
 
-function verifySignature(data, publicKey, signature) {
+const verifySignature = (data, publicKey, signature) => {
     let pubKeyPoint = decompressPublicKey(publicKey)
     let keyPair = secp256k1.keyPair({ pub: pubKeyPoint })
     let result = keyPair.verify(data, { r: signature[0], s: signature[1] })
     return result
 }
+
+export default Transaction

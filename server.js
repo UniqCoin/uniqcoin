@@ -70,7 +70,7 @@ const initHttpServer = () => {
     // TODO
   })
 
-  app.get('/mining/get-mining-jon', (req, res) => {
+  app.get('/mining/get-mining-job', (req, res) => {
     // TODO
   })
 

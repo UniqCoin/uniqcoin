@@ -15,7 +15,7 @@ const initHttpServer = () => {
   })
 
   app.get('/debug', (req, res) => {
-    // TODO
+    res.send(JSON.stringify(node))
   })
 
   app.get('/debug/reset-chain', (req, res) => {

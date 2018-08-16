@@ -1,10 +1,12 @@
 const uuid4 = require('uuid/v4')
 
 class Node {
-  constructor(selfURL, peers, chain) {
+  constructor(serverHost, serverPort, chain) {
     this.nodeId = uuid4()
-    this.selfURL = selfURL
-    this.peers = peers
+    this.host = serverHost
+    this.port = serverPort
+    this.selfURL = `http://${serverHost}:${serverPort}`
+    this.peers = {}
     this.chain = chain
   }
 }

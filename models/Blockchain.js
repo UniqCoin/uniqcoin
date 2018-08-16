@@ -2,9 +2,9 @@ const Block = require('./Block')
 
 class Blockchain {
   constructor(blocks = [this.genesisBlock],
-    pendingTransactions = [], currentDifficulty = 1) {
+    transactions = [], currentDifficulty = 1) {
     this.blocks = blocks
-    this.pendingTransactions = pendingTransactions
+    this.transactions = transactions
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
   }

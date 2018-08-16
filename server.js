@@ -65,7 +65,10 @@ const initHttpServer = () => {
   })
 
   app.get('/transactions/:hash', (req, res) => {
-    // TODO
+    const { hash } = req.params
+    const transaction = node.getTransactionByHash(hash)
+    if (transaction) res.json(transaction)
+    else res.status(404).send('Not found')
   })
 
   app.get('/balances', (req, res) => {

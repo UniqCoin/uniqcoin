@@ -5,12 +5,11 @@ const Block = require('./Block')
 // constructor(index, difficulty, prevBlockHash, blockDataHash,
 //   minedBy, nonce, dateCreated, blockHash) {
 class Blockchain {
-  constructor(blocks = [this.genesisBlock],
-    transactions = [], currentDifficulty = 1) {
+  constructor(blocks = [this.genesisBlock], currentDifficulty = 1) {
     this.blocks = blocks
-    this.transactions = transactions
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
+    this.pendingTransactions = []
   }
 
   get genesisBlock() {
@@ -19,6 +18,10 @@ class Blockchain {
 
   addNewBlock(block) {
     this.blocks.push(block)
+  }
+
+  get confirmedTransactions() {
+    return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
   }
 }
 

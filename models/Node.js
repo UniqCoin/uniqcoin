@@ -6,7 +6,7 @@ class Node {
     this.host = serverHost
     this.port = serverPort
     this.selfURL = `http://${serverHost}:${serverPort}`
-    this.peers = {}
+    this.peers = []
     this.chain = chain
   }
 
@@ -23,6 +23,14 @@ class Node {
     }
 
     return transactionData
+  }
+
+  /**
+   * Should trigger and return the block in specific index
+   * @param index , index of the selected block
+   */
+  getBlockByIndex(index) {
+    return this.chain.blocks[index]
   }
 }
 

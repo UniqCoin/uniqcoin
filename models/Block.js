@@ -29,7 +29,7 @@ class Block {
    */
   calculateBlockHash() {
     const stringData = `${this.blockDataHash}|${this.dateCreated}|${this.nonce}`
-    this.blockHash = CryptoJs.SHA256(stringData)
+    this.blockHash = CryptoJs.SHA256(stringData).toString()
   }
 
   /**
@@ -50,6 +50,10 @@ class Block {
       transferSuccessful: transaction.transferSuccessful,
     }))
 
+    /**
+     * Block data, values of block
+     * should be in order to have exact value
+     */
     const blockData = {
       index: this.index,
       transactions,
@@ -59,7 +63,7 @@ class Block {
     }
 
     const blockDataJSON = JSON.stringify(blockData)
-    this.blockDataHash = CryptoJs.SHA256(blockDataJSON)
+    this.blockDataHash = CryptoJs.SHA256(blockDataJSON).toString()
   }
 }
 

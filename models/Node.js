@@ -1,5 +1,3 @@
-const uuid4 = require('uuid/v4')
-
 class Node {
   constructor(serverHost, serverPort, chain) {
     this.nodeId = uuid4()

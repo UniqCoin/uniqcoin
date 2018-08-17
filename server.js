@@ -36,7 +36,17 @@ const initHttpServer = () => {
   app.use(bodyParser.json())
 
   app.get('/info', (req, res) => {
-    // TODO
+    res.json({
+      about: 'UniqCoin',
+      nodeId: node.nodeId,
+      nodeUrl: node.selfUrl,
+      peers: node.peers.length,
+      currentDifficulty: node.chain.currentDifficulty,
+      blocksCount: node.chain.blocks.length,
+      cumulativeDifficulty: 0,
+      confirmedTransactions: 0,
+      pendingTransactions: node.chain.pendingTransactions.length,
+    })
   })
 
   app.get('/debug', (req, res) => {

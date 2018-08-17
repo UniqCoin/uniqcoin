@@ -43,24 +43,24 @@ class Transaction {
   // }
 }
 
-module.exports = Transaction
 
 // function signData(data, privKey) {
-//   const keyPair = secp256k1.keyFromPrivate(privKey)
-//   const signature = keyPair.sign(data)
-//   return [signature.r.toString(16), signature.s.toString(16)]
-// }
-
-// function decompressPublicKey(pubKeyCompressed) {
-//   const pubKeyX = pubKeyCompressed.substring(0, 64)
-//   const pubKeyYOdd = parseInt(pubKeyCompressed.substring(64))
-//   const pubKeyPoint = secp256k1.curve.pointFromX(pubKeyX, pubKeyYOdd)
-//   return pubKeyPoint
-// }
-
-// function verifySignature(data, publicKey, signature) {
-//   const pubKeyPoint = decompressPublicKey(publicKey)
-//   const keyPair = secp256k1.keyPair({ pub: pubKeyPoint })
-//   const result = keyPair.verify(data, { r: signature[0], s: signature[1] })
-//   return result
-// }
+  //   const keyPair = secp256k1.keyFromPrivate(privKey)
+  //   const signature = keyPair.sign(data)
+  //   return [signature.r.toString(16), signature.s.toString(16)]
+  // }
+  
+  // function decompressPublicKey(pubKeyCompressed) {
+    //   const pubKeyX = pubKeyCompressed.substring(0, 64)
+    //   const pubKeyYOdd = parseInt(pubKeyCompressed.substring(64))
+    //   const pubKeyPoint = secp256k1.curve.pointFromX(pubKeyX, pubKeyYOdd)
+    //   return pubKeyPoint
+    // }
+    
+    // function verifySignature(data, publicKey, signature) {
+      //   const pubKeyPoint = decompressPublicKey(publicKey)
+      //   const keyPair = secp256k1.keyPair({ pub: pubKeyPoint })
+      //   const result = keyPair.verify(data, { r: signature[0], s: signature[1] })
+      //   return result
+      // }
+module.exports = Transaction

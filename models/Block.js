@@ -1,7 +1,8 @@
 class Block {
-  constructor(index, transactions, difficulty, prevBlockHash, blockDataHash,
+  constructor(index, difficulty, prevBlockHash, blockDataHash,
     minedBy, nonce, dateCreated, blockHash) {
     this.index = index
+    this.transactions = []
     this.difficulty = difficulty
     this.prevBlockHash = prevBlockHash
     this.blockDataHash = blockDataHash
@@ -12,4 +13,4 @@ class Block {
   }
 }
 
-export default Block
+module.exports = Block

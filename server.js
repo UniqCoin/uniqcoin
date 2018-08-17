@@ -1,12 +1,18 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const WebSocket = require('ws')
+const Node = require('./models/Node')
+const Blockchain = require('./models/Blockchain')
 
-const httpPort = process.env.HTTP_PORT || 3001
+const serverHost = process.env.HOST || 'localhost'
+const serverPort = process.env.HTTP_PORT || 5555
 const p2pPort = process.env.P2P_PORT || 6001
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : []
 
 const sockets = []
+
+const blockchain = new Blockchain()
+const node = new Node(serverHost, serverPort, blockchain)
 
 const initConnection = (ws) => {
   sockets.push(ws)
@@ -34,11 +40,12 @@ const initHttpServer = () => {
   })
 
   app.get('/debug', (req, res) => {
-    // TODO
+    res.json(node)
   })
 
   app.get('/debug/reset-chain', (req, res) => {
-    // TODO
+    node.chain = new Blockchain()
+    res.json({ message: 'The chain was reset to its genesis block' })
   })
 
   app.get('/blocks', (req, res) => {
@@ -58,7 +65,10 @@ const initHttpServer = () => {
   })
 
   app.get('/transactions/:hash', (req, res) => {
-    // TODO
+    const { hash } = req.params
+    const transaction = node.getTransactionByHash(hash)
+    if (transaction) res.json(transaction)
+    else res.status(404).send('Not found')
   })
 
   app.get('/balances', (req, res) => {
@@ -98,7 +108,7 @@ const initHttpServer = () => {
     // TODO
   })
 
-  app.listen(httpPort, () => console.log(`Listening http on port ${httpPort}`))
+  app.listen(serverPort, () => console.log(`Listening http on port ${serverPort}`))
 }
 
 connectToPeers(initialPeers)

@@ -3,9 +3,9 @@ const Transaction = require('./Transaction')
 
 class Blockchain {
   constructor(blocks = [this.genesisBlock],
-    transactions = [], currentDifficulty = 1) {
+    pendingTransactions = [], currentDifficulty = 1) {
     this.blocks = blocks
-    this.transactions = transactions
+    this.pendingTransactions = pendingTransactions
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
   }

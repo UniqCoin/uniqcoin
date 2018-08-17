@@ -9,8 +9,8 @@ const httpPort = process.env.HTTP_PORT || 3001
 const p2pPort = process.env.P2P_PORT || 6001
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : []
 
-const blockchain = new Blockchain([], [], 4)
-const node = new Node('nodeID123', 'selfURL', [], blockchain)
+const blockchain = new Blockchain()
+const node = new Node('host', 'port', blockchain)
 
 const initHttpServer = () => {
   const app = express()
@@ -20,7 +20,7 @@ const initHttpServer = () => {
     res.json({
       "about": "UniqCoin",
       "nodeId": node.nodeId,
-      "nodeUrl": node.selfUrl,
+      "nodeUrl": node.selfURL,
       "peers": node.peers.length,
       "currentDifficulty": node.chain.currentDifficulty,
       "blocksCount": node.chain.blocks.length,

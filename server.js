@@ -10,7 +10,6 @@ const p2pPort = process.env.P2P_PORT || 6001
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : []
 
 const sockets = []
-
 const blockchain = new Blockchain()
 const node = new Node(serverHost, serverPort, blockchain)
 
@@ -36,7 +35,7 @@ const initHttpServer = () => {
   app.use(bodyParser.json())
 
   app.get('/info', (req, res) => {
-    // TODO
+    res.json(node.info)
   })
 
   app.get('/debug', (req, res) => {

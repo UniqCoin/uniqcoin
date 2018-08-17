@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 const Block = require('./Block')
+const Transaction = require('./Transaction')
 
 
 // constructor(index, difficulty, prevBlockHash, blockDataHash,
@@ -12,10 +13,9 @@ class Blockchain {
     this.pendingTransactions = []
   }
 
-  get genesisBlock() {
-    return [new Block(0, 0, '000000000000000000000', '', '0000000000000000000000000', 0, new Date(), '')]
-  }
-
+  /**
+   * @param block, block to be added in chain
+   */
   addNewBlock(block) {
     this.blocks.push(block)
   }
@@ -23,6 +23,47 @@ class Blockchain {
   get confirmedTransactions() {
     return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
   }
+
+  get cumulativeDifficulty() {
+    // TO DO
+    return 0
+  }
+
+  get genesisBlock() {
+    const nullAddress = '0000000000000000000000000000000000000000'
+    const nullPubKey = '00000000000000000000000000000000000000000000000000000000000000000'
+    const nullSignature = [
+      '0000000000000000000000000000000000000000000000000000000000000000',
+      '0000000000000000000000000000000000000000000000000000000000000000',
+    ]
+    const genesisDate = new Date('08/06/2018').toISOString()
+
+    const initialFaucetTransaction = new Transaction(
+      nullAddress,
+      'faucetAddress',
+      1000000000,
+      0,
+      genesisDate,
+      'genesis transaction',
+      nullPubKey,
+      undefined,
+      nullSignature,
+      0,
+      true,
+    )
+    return [new Block(
+      0,
+      [initialFaucetTransaction],
+      0,
+      undefined,
+      undefined,
+      nullAddress,
+      0,
+      genesisDate,
+      undefined,
+    )]
+  }
+
 }
 
 module.exports = Blockchain

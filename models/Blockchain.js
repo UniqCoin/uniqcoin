@@ -1,5 +1,9 @@
+/* eslint-disable class-methods-use-this */
 const Block = require('./Block')
 
+
+// constructor(index, difficulty, prevBlockHash, blockDataHash,
+//   minedBy, nonce, dateCreated, blockHash) {
 class Blockchain {
   constructor(blocks = [this.genesisBlock],
     transactions = [], currentDifficulty = 1) {
@@ -10,7 +14,11 @@ class Blockchain {
   }
 
   get genesisBlock() {
-    return [new Block(0, [], 0, 0, 'w7da92eb4249cb5ff4f9da36e2a7f8d5d61999221ed6910180948153e71cc97f', 'uniqcoin', 1, new Date(), '078a2df4d5fb65f43b57463023430b01e218462c729852ae98109c86864d8150')]
+    return [new Block(0, 0, '000000000000000000000', '', '0000000000000000000000000', 0, new Date(), '')]
+  }
+
+  addNewBlock(block) {
+    this.blocks.push(block)
   }
 }
 

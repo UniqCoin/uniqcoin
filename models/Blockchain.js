@@ -1,4 +1,5 @@
 const Block = require('./Block')
+const Transaction = require('./Transaction')
 
 class Blockchain {
   constructor(blocks = [this.genesisBlock],
@@ -10,8 +11,40 @@ class Blockchain {
   }
 
   get genesisBlock() {
-    return [new Block(0, [], 0, 0, 'w7da92eb4249cb5ff4f9da36e2a7f8d5d61999221ed6910180948153e71cc97f', 'uniqcoin', 1, new Date(), '078a2df4d5fb65f43b57463023430b01e218462c729852ae98109c86864d8150')]
+    const nullAddress = "0000000000000000000000000000000000000000";
+    const nullPubKey = "00000000000000000000000000000000000000000000000000000000000000000";
+    const nullSignature = [
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+    ];
+    const genesisDate = '2018-01-01T00:00:00.000Z'
+
+    const initialFaucetTransaction = new Transaction(
+      nullAddress,
+      'faucetAddress',
+      1000000000,
+      0,
+      genesisDate,
+      'genesis transaction',
+      nullPubKey,
+      undefined,
+      nullSignature,
+      0,
+      true
+    )
+    return [new Block(
+      0,
+      [initialFaucetTransaction],
+      0, 
+      undefined, 
+      undefined, 
+      nullAddress, 
+      0, 
+      genesisDate, 
+      undefined
+    )]
   }
+
 }
 
 module.exports = Blockchain

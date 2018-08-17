@@ -1,10 +1,10 @@
 const CryptoJs = require('crypto-js')
 
 class Block {
-  constructor(index, difficulty, prevBlockHash, blockDataHash,
+  constructor(index, transactions, difficulty, prevBlockHash, blockDataHash,
     minedBy, nonce, dateCreated, blockHash) {
     this.index = index
-    this.transactions = []
+    this.transactions = transactions
     this.difficulty = difficulty
     this.prevBlockHash = prevBlockHash
     this.blockDataHash = blockDataHash

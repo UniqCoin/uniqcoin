@@ -31,11 +31,12 @@ const initHttpServer = () => {
   })
 
   app.get('/debug', (req, res) => {
-    res.send(JSON.stringify(node))
+    res.json(node)
   })
 
   app.get('/debug/reset-chain', (req, res) => {
-    // TODO
+    node.chain = new Blockchain()
+    res.json({ message: 'The chain was reset to its genesis block' })
   })
 
   app.get('/blocks', (req, res) => {
@@ -55,7 +56,10 @@ const initHttpServer = () => {
   })
 
   app.get('/transactions/:hash', (req, res) => {
-    // TODO
+    const { hash } = req.params
+    const transaction = node.getTransactionByHash(hash)
+    if (transaction) res.json(transaction)
+    else res.status(404).send('Not found')
   })
 
   app.get('/balances', (req, res) => {

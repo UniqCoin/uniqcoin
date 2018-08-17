@@ -22,6 +22,21 @@ class Node {
 
     return transactionData
   }
+
+  get info() {
+    return {
+      about: 'UniqCoin',
+      nodeId: this.nodeId,
+      chainId: this.chain.genesisBlock.blockHash,
+      nodeUrl: this.selfUrl,
+      peers: this.peers.length,
+      currentDifficulty: this.chain.currentDifficulty,
+      blocksCount: this.chain.blocks.length,
+      cumulativeDifficulty: this.chain.cumulativeDifficulty,
+      confirmedTransactions: this.chain.confirmedTransactions.length,
+      pendingTransactions: this.chain.pendingTransactions.length,
+    }
+  }
 }
 
 module.exports = Node

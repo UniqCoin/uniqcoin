@@ -1,5 +1,3 @@
-const uuid4 = require('uuid/v4')
-
 class Node {
   constructor(serverHost, serverPort, chain) {
     this.nodeId = (new Date()).getTime().toString(16) + Math.random().toString(16).substring(2)

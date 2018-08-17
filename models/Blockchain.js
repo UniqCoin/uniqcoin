@@ -16,7 +16,7 @@ class Blockchain {
         "0000000000000000000000000000000000000000000000000000000000000000",
         "0000000000000000000000000000000000000000000000000000000000000000"
     ];
-    const genesisDate = '2018-01-01T00:00:00.000Z'
+    const genesisDate = new Date('08/06/2018').toISOString()
 
     const initialFaucetTransaction = new Transaction(
       nullAddress,
@@ -44,12 +44,14 @@ class Blockchain {
     )]
   }
 
-<<<<<<< HEAD
-=======
   get confirmedTransactions() {
     return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
   }
->>>>>>> dbc983d16f8dd31b808fbf66e71de1810e47a1f3
+
+  get cumulativeDifficulty() {
+    //TO DO
+    return 0
+  }
 }
 
 module.exports = Blockchain

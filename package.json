@@ -17,12 +17,16 @@
   },
   "homepage": "https://github.com/UniqCoin/uniqcoin#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cluster": "^0.7.7",
     "crypto-js": "^3.1.9-1",
     "express": "^4.16.3",
     "os": "^0.1.1",
+<<<<<<< HEAD
     "uuid": "^3.3.2",
+=======
+>>>>>>> 8911c2dfc14511521243047161f9f76c36f2de41
     "ws": "^6.0.0"
   },
   "devDependencies": {

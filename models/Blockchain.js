@@ -2,12 +2,11 @@ const Block = require('./Block')
 const Transaction = require('./Transaction')
 
 class Blockchain {
-  constructor(blocks = [this.genesisBlock],
-    pendingTransactions = [], currentDifficulty = 1) {
+  constructor(blocks = [this.genesisBlock], currentDifficulty = 1) {
     this.blocks = blocks
-    this.pendingTransactions = pendingTransactions
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
+    this.pendingTransactions = []
   }
 
   get genesisBlock() {
@@ -45,6 +44,12 @@ class Blockchain {
     )]
   }
 
+<<<<<<< HEAD
+=======
+  get confirmedTransactions() {
+    return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
+  }
+>>>>>>> dbc983d16f8dd31b808fbf66e71de1810e47a1f3
 }
 
 module.exports = Blockchain

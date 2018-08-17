@@ -4,7 +4,7 @@ class Node {
     this.host = serverHost
     this.port = serverPort
     this.selfURL = `http://${serverHost}:${serverPort}`
-    this.peers = {}
+    this.peers = []
     this.chain = chain
   }
 

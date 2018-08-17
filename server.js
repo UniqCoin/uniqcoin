@@ -57,11 +57,11 @@ const initHttpServer = () => {
   })
 
   app.get('/transactions/pending', (req, res) => {
-    // TODO
+    res.json(node.chain.pendingTransactions)
   })
 
   app.get('/transactions/confirmed', (req, res) => {
-    // TODO
+    res.json(node.chain.confirmedTransactions)
   })
 
   app.get('/transactions/:hash', (req, res) => {
@@ -88,10 +88,10 @@ const initHttpServer = () => {
   })
 
   app.get('/peers', (req, res) => {
-    res.send(sockets.map(s => `${s._socket.remoteAddress} : ${s._socket.remotePort}`))
+    res.send(node.peers.map(peer => `${peer.nodeId} : ${peer.selfURL}`))
   })
 
-  app.post('/peers/add', (req, res) => {
+  app.post('/peers/connect', (req, res) => {
     connectToPeers([req.body.peer])
     res.send()
   })

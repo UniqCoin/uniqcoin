@@ -1,5 +1,5 @@
 class Node {
-    constructor(nodeId, selfURL, peers, chain, endpoints) {
+    constructor(nodeId, selfURL, peers, chain) {
         this.nodeId = nodeId
         this.selfURL = selfURL
         this.peers = peers

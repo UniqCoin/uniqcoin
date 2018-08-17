@@ -8,6 +8,7 @@ const keypair = secp256k1.genKeyPair()
 
 class Wallet {
   constructor(data) {
+    this.privateKey = data.privateKey
     /**
      * generate wallet when instantiated and has no private key as param
      */
@@ -60,7 +61,6 @@ class Wallet {
    * @param  privateKey of user
    */
   recoverWallet(privateKey) {
-    this.privateKey = privateKey
     // return 256bits or 32bytes(8bits === 1byte) hex form of string
     const key = secp256k1.keyFromPrivate(privateKey)
     const generatedPubKey = key.getPublic()

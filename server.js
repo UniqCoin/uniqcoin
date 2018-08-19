@@ -69,7 +69,7 @@ const initHttpServer = () => {
 
   app.get('/transactions/:hash', (req, res) => {
     const { hash } = req.params
-    const transaction = node.getTransactionByHash(hash)
+    const transaction = node.chain.getTransactionByHash(hash)
     if (transaction) res.json(transaction)
     else res.status(404).send('Not found')
   })
@@ -87,7 +87,12 @@ const initHttpServer = () => {
   })
 
   app.post('/transaction/send', (req, res) => {
-    // TODO
+    const result = node.chain.addNewTransaction(req.body)
+    const { errorMsg } = result
+    if (errorMsg) {
+      res.status(404).send(errorMsg)
+    }
+    res.json(result)
   })
 
   app.get('/peers', (req, res) => {

@@ -8,21 +8,6 @@ class Node {
     this.chain = chain
   }
 
-  getTransactionByHash(transactionDataHash) {
-    const { chain } = this
-    let transactionData = null
-    const { blocks } = chain
-    let counter = 0
-
-    while (!transactionData || counter < blocks.length) {
-      const currentBlock = blocks[counter]
-      counter += 1
-      transactionData = currentBlock.transactions.find(transaction => transaction.transactionDataHash === transactionDataHash)
-    }
-
-    return transactionData
-  }
-
   /**
    * Should trigger and return the block in specific index
    * @param index , index of the selected block

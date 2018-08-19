@@ -38,32 +38,56 @@ class Blockchain {
     ]
     const genesisDate = new Date('08/06/2018').toISOString()
 
-    const initialFaucetTransaction = new Transaction(
-      nullAddress,
-      'faucetAddress',
-      1000000000,
-      0,
-      genesisDate,
-      'genesis transaction',
-      nullPubKey,
-      undefined,
-      nullSignature,
-      0,
-      true,
-    )
-    return [new Block(
-      0,
-      [initialFaucetTransaction],
-      0,
-      undefined,
-      undefined,
-      nullAddress,
-      0,
-      genesisDate,
-      undefined,
-    )]
+    const initialFaucetTransaction = new Transaction(nullAddress, 'faucetAddress', 1000000000, 0,
+      genesisDate, 'genesis transaction', nullPubKey, nullSignature)
+    initialFaucetTransaction.minedInBlockIndex = 0
+    initialFaucetTransaction.transactionSuccessful = true
+
+    return [new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
+      0, genesisDate, undefined)]
   }
 
+  getTransactionByHash(transactionDataHash) {
+    const { chain } = this
+    let transactionData = null
+    const { blocks } = chain
+    let counter = 0
+
+    while (!transactionData || counter < blocks.length) {
+      const currentBlock = blocks[counter]
+      counter += 1
+      transactionData = currentBlock.transactions.find(transaction => transaction.transactionDataHash === transactionDataHash)
+    }
+
+    return transactionData
+  }
+
+  addNewTransaction(transaction) {
+    const {
+      from,
+      to,
+      value,
+      fee,
+      dateCreated,
+      data,
+      senderPubKey,
+      senderSignature,
+    } = transaction
+
+    // TODO: add validations
+
+    const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
+      senderPubKey, senderSignature)
+
+    if (this.getTransactionByHash(newTransaction.transactionDataHash)) {
+      return { errorMsg: `Duplicate transaction: ${newTransaction.transactionDataHash}` }
+    }
+
+    // TODO: add more validations
+
+    this.pendingTransactions.push(newTransaction)
+    return newTransaction
+  }
 }
 
 module.exports = Blockchain

@@ -75,7 +75,7 @@ const initHttpServer = () => {
   })
 
   app.get('/balances', (req, res) => {
-    // TODO
+    res.json(node.chain.getAccountBalances())
   })
 
   app.get('/address/:address/transactions', (req, res) => {

@@ -99,6 +99,32 @@ class Blockchain {
   getAllTransactions() {
     return this.getConfirmedTransactions().concat(this.pendingTransactions)
   }
+
+  getAccountBalances() {
+    const transactions = this.getConfirmedTransactions()
+    const balances = transactions.reduce((acc, cur) => {
+      const {
+        from, to, fee, value, transferSuccessful,
+      } = cur
+      acc[from] = acc[from] || 0
+      acc[to] = acc[to] || 0
+      acc[from] -= fee
+      if (transferSuccessful) {
+        acc[from] -= value
+        acc[to] += value
+      }
+      return acc
+    }, {})
+
+    // Remove all negative balances except for the genesis address
+    // TODO: refactor, dont hard code genesis balance
+    Object.keys(balances).forEach((address) => {
+      if (balances[address] < 0 && address !== '0000000000000000000000000000000000000000') {
+        delete balances[address]
+      }
+    })
+    return balances
+  }
 }
 
 module.exports = Blockchain

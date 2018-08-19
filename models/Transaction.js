@@ -15,7 +15,7 @@ class Transaction {
     this.senderSignature = senderSignature
     this.transactionDataHash = null
     this.minedInBlockIndex = null
-    this.transactionSuccessful = null
+    this.transferSuccessful = null
     this.calculateTransactionDataHash()
   }
 
@@ -32,21 +32,21 @@ class Transaction {
     this.transactionDataHash = CryptoJS.SHA256(transactionDataJSON).toString()
   }
 
-  // sign(privateKey) {
-  //   this.senderSignature = signData(this.transactionHash, privateKey)
-  // }
+  sign(privateKey) {
+    this.senderSignature = signData(this.transactionHash, privateKey)
+  }
 
   // verify() {
   //   this.transactionSuccessful = verifySignature(this.transactionHash, this.senderPubKey, this.senderSignature)
   // }
 }
 
-
-// function signData(data, privKey) {
-//   const keyPair = secp256k1.keyFromPrivate(privKey)
-//   const signature = keyPair.sign(data)
-//   return [signature.r.toString(16), signature.s.toString(16)]
-// }
+// TODO: move this function somewhere else
+function signData(data, privKey) {
+  const keyPair = secp256k1.keyFromPrivate(privKey)
+  const signature = keyPair.sign(data)
+  return [signature.r.toString(16), signature.s.toString(16)]
+}
 
 // function decompressPublicKey(pubKeyCompressed) {
 //   const pubKeyX = pubKeyCompressed.substring(0, 64)

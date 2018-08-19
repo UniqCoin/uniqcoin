@@ -64,7 +64,7 @@ const initHttpServer = () => {
   })
 
   app.get('/transactions/confirmed', (req, res) => {
-    // TODO
+    res.json(node.chain.getConfirmedTransactions())
   })
 
   app.get('/transactions/:hash', (req, res) => {
@@ -92,7 +92,7 @@ const initHttpServer = () => {
     if (errorMsg) {
       res.status(404).send(errorMsg)
     }
-    res.json(result)
+    res.json(result.transactionDataHash)
   })
 
   app.get('/peers', (req, res) => {

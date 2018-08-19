@@ -41,7 +41,7 @@ class Blockchain {
     const initialFaucetTransaction = new Transaction(nullAddress, 'faucetAddress', 1000000000, 0,
       genesisDate, 'genesis transaction', nullPubKey, nullSignature)
     initialFaucetTransaction.minedInBlockIndex = 0
-    initialFaucetTransaction.transactionSuccessful = true
+    initialFaucetTransaction.transferSuccessful = true
 
     return [new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
       0, genesisDate, undefined)]
@@ -87,6 +87,17 @@ class Blockchain {
 
     this.pendingTransactions.push(newTransaction)
     return newTransaction
+  }
+
+  getConfirmedTransactions() {
+    return this.blocks.reduce((acc, cur) => {
+      acc.push(...cur.transactions)
+      return acc
+    }, [])
+  }
+
+  getAllTransactions() {
+    return this.getConfirmedTransactions().concat(this.pendingTransactions)
   }
 }
 

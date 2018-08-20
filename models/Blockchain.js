@@ -125,6 +125,14 @@ class Blockchain {
     })
     return balances
   }
+
+  getTransactionsByAddress(address) {
+    // TODO: add validations
+    let transactions = this.getAllTransactions()
+    transactions = transactions.filter(transaction => transaction.from === address || transaction.to === address)
+      .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
+    return { address, transactions }
+  }
 }
 
 module.exports = Blockchain

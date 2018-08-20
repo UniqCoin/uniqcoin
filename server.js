@@ -79,7 +79,11 @@ const initHttpServer = () => {
   })
 
   app.get('/address/:address/transactions', (req, res) => {
-    // TODO
+    const { address } = req.params
+    const result = node.chain.getTransactionsByAddress(address)
+    const { errorMsg } = result
+    if (errorMsg) res.status(404).send(errorMsg)
+    res.json(result)
   })
 
   app.get('/address/:address/balance', (req, res) => {
@@ -108,7 +112,7 @@ const initHttpServer = () => {
     // TODO
   })
 
-  app.get('/mining/get-mining-jon', (req, res) => {
+  app.get('/mining/get-mining-job', (req, res) => {
     // TODO
   })
 

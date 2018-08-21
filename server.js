@@ -4,9 +4,11 @@ const WebSocket = require('ws')
 const Node = require('./models/Node')
 const Blockchain = require('./models/Blockchain')
 
-const serverHost = process.env.HOST || 'localhost'
-const serverPort = process.env.HTTP_PORT || 5555
-const p2pPort = process.env.P2P_PORT || 6001
+const config = require('./config')
+
+const serverHost = process.env.HOST || config.serverHost
+const serverPort = process.env.HTTP_PORT || config.port
+const p2pPort = process.env.P2P_PORT || config.p2pPort
 const initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : []
 
 const sockets = []

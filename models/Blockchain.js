@@ -133,6 +133,33 @@ class Blockchain {
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return { address, transactions }
   }
+
+  getLastBlock() {
+    return this.blocks.pop()
+  }
+
+  getLastBlockIndex() {
+    return this.getLastBlock().index
+  }
+
+  createCoinbaseTransaction(toAddress) {
+    const transaction = new Transaction(
+      '0000000000000000000000000000000000000000',
+      toAddress,
+      5000000,
+      0,
+      new Date().toISOString(),
+      'coinbase tx',
+      '00000000000000000000000000000000000000000000000000000000000000000',
+      [
+        '0000000000000000000000000000000000000000000000000000000000000000',
+        '0000000000000000000000000000000000000000000000000000000000000000',
+      ],
+    )
+    transaction.minedInBlockIndex = this.getLastBlockIndex() + 1
+    transaction.transferSuccessful = true
+    return transaction
+  }
 }
 
 module.exports = Blockchain

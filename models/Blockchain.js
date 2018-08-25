@@ -133,6 +133,14 @@ class Blockchain {
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return { address, transactions }
   }
+
+  calculateCumulativeDifficulty() {
+    let totalDifficulty = 0
+    this.blocks.forEach((block) => {
+      totalDifficulty += block.difficulty
+    })
+    return totalDifficulty
+  }
 }
 
 module.exports = Blockchain

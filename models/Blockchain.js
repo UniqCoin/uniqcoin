@@ -2,6 +2,8 @@
 const Block = require('./Block')
 const Transaction = require('./Transaction')
 
+const config = require('../config')
+
 
 // constructor(index, difficulty, prevBlockHash, blockDataHash,
 //   minedBy, nonce, dateCreated, blockHash) {
@@ -30,15 +32,11 @@ class Blockchain {
   }
 
   get genesisBlock() {
-    const nullAddress = '0000000000000000000000000000000000000000'
-    const nullPubKey = '00000000000000000000000000000000000000000000000000000000000000000'
-    const nullSignature = [
-      '0000000000000000000000000000000000000000000000000000000000000000',
-      '0000000000000000000000000000000000000000000000000000000000000000',
-    ]
-    const genesisDate = new Date('08/06/2018').toISOString()
+    const {
+      nullAddress, nullPubKey, nullSignature, genesisDate, faucetAddress, faucetTxVal,
+    } = config
 
-    const initialFaucetTransaction = new Transaction(nullAddress, 'faucetAddress', 1000000000, 0,
+    const initialFaucetTransaction = new Transaction(nullAddress, faucetAddress, faucetTxVal, 0,
       genesisDate, 'genesis transaction', nullPubKey, nullSignature)
     initialFaucetTransaction.minedInBlockIndex = 0
     initialFaucetTransaction.transferSuccessful = true
@@ -117,9 +115,8 @@ class Blockchain {
     }, {})
 
     // Remove all negative balances except for the genesis address
-    // TODO: refactor, dont hard code genesis balance
     Object.keys(balances).forEach((address) => {
-      if (balances[address] < 0 && address !== '0000000000000000000000000000000000000000') {
+      if (balances[address] < 0 && address !== config.nullAddress) {
         delete balances[address]
       }
     })
@@ -140,6 +137,33 @@ class Blockchain {
       totalDifficulty += block.difficulty
     })
     return totalDifficulty
+  }
+
+  getLastBlock() {
+    return this.blocks.pop()
+  }
+
+  getLastBlockIndex() {
+    return this.getLastBlock().index
+  }
+
+  createCoinbaseTransaction(toAddress) {
+    const {
+      nullAddress, coinbaseTxVal, nullPubKey, nullSignature,
+    } = config
+    const transaction = new Transaction(
+      nullAddress,
+      toAddress,
+      coinbaseTxVal,
+      0,
+      new Date().toISOString(),
+      'coinbase tx',
+      nullPubKey,
+      nullSignature,
+    )
+    transaction.minedInBlockIndex = this.getLastBlockIndex() + 1
+    transaction.transferSuccessful = true
+    return transaction
   }
 }
 

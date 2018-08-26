@@ -49,6 +49,14 @@ class Blockchain {
     return newTransaction
   }
 
+  calculateCumulativeDifficulty() {
+    let totalDifficulty = 0
+    this.blocks.forEach((block) => {
+      totalDifficulty += block.difficulty
+    })
+    return totalDifficulty
+  }
+
   get confirmedTransactions() {
     return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
   }
@@ -72,10 +80,12 @@ class Blockchain {
     return transaction
   }
 
+
   get cumulativeDifficulty() {
     // TO DO
     return 0
   }
+
 
   getAccountBalances() {
     const transactions = this.getConfirmedTransactions()
@@ -126,7 +136,7 @@ class Blockchain {
       return acc
     }, [])
   }
-  
+
   getTransactionByHash(transactionDataHash) {
     const { chain } = this
     let transactionData = null
@@ -153,24 +163,24 @@ class Blockchain {
   getMiningJob(address) {
     let nextBlockIndex = this.blocks.length
     let pendingTransactions = JSON.parse(JSON.stringify(this.getPendingTransactions()))
-      .sort((a,b) => a.fee-b.fee)
+      .sort((a, b) => a.fee - b.fee)
 
     let coinbaseTransaction = this.createCoinbaseTransaction(address)
     let balances = this.getAccountBalances()
     for (let transaction in pendingTransactions) {
       balances[transaction.from] = balances[transaction.from] || 0
       balances[transaction.to] = balances[transaction.to] || 0
-      
-      if(balanceFrom >= transaction.fee) {
+
+      if (balanceFrom >= transaction.fee) {
         transaction.minedInBlockIndex = nextBlockIndex
         balances[transaction.from] -= transaction.fee
         coinbaseTransaction.value += transaction.fee
-        if(balances[transaction.from] >= transaction.value) {
+        if (balances[transaction.from] >= transaction.value) {
           balances[transaction.from] -= transaction.value;
           balances[transaction.to] += transaction.value
           transaction.transferSuccessful = true
         } else {
-          transaction.transferSuccessful = false 
+          transaction.transferSuccessful = false
         }
       } else {
         // this.
@@ -189,7 +199,7 @@ class Blockchain {
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return { address, transactions }
   }
- 
+
   removePendingTransactions(transactions) {
     for (const t of transactions) {
       this.pendingTransactions = this.pendingTransactions.filter((item) => {

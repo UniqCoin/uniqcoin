@@ -157,6 +157,41 @@ class Blockchain {
     transaction.transferSuccessful = true
     return transaction
   }
+
+  submitMinedBlock(minedBlock) {
+    const block = this.miningJobs[minedBlock.blockDataHash]
+
+    if (!block) {
+      return { errorMsg: 'Block does not exists!' }
+    }
+
+    const { nonce, dateCreated, blockHash } = minedBlock
+    block.nonce = nonce
+    block.dateCreated = dateCreated
+    block.blockHash = blockHash
+
+    // TODO: add validations
+  }
+
+  verifyBlock(block) {
+    const lastBlock = this.getLastBlock()
+
+    if (block.index !== this.blocks.length) {
+      return { errorMsg: 'This block has already mined by someone' }
+    }
+    if (lastBlock.blockHash !== block.prevBlockHash) {
+      return { errorMsg: 'Invalid previous block hash' }
+    }
+
+    this.blocks.push(block)
+    this.miningJobs = {}
+    const minedTransactionHashes = block.transactions.reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
+    this.pendingTransactions = this.pendingTransactions.filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
+  }
+
+  updatePendingTransactions() {
+
+  }
 }
 
 module.exports = Blockchain

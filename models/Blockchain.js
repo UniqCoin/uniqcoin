@@ -4,9 +4,6 @@ const Transaction = require('./Transaction')
 
 const config = require('../config')
 
-
-// constructor(index, difficulty, prevBlockHash, blockDataHash,
-//   minedBy, nonce, dateCreated, blockHash) {
 class Blockchain {
   constructor(blocks = [this.genesisBlock], currentDifficulty = 1) {
     this.blocks = blocks
@@ -146,7 +143,8 @@ class Blockchain {
     while (!transactionData || counter < blocks.length) {
       const currentBlock = blocks[counter]
       counter += 1
-      transactionData = currentBlock.transactions.find(transaction => transaction.transactionDataHash === transactionDataHash)
+      transactionData = currentBlock.transactions
+        .find(transaction => transaction.transactionDataHash === transactionDataHash)
     }
 
     return transactionData
@@ -157,35 +155,62 @@ class Blockchain {
   }
 
   getLastBlock() {
+    /* verify, this will make the current state reduce the block every call */
     return this.blocks.pop()
   }
 
+  /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
-    let nextBlockIndex = this.blocks.length
+    const nextBlockIndex = this.blocks.length
+    /* get pending transactions in json and parse and sort it */
     let pendingTransactions = JSON.parse(JSON.stringify(this.getPendingTransactions()))
       .sort((a, b) => a.fee - b.fee)
+    /* create coinbase transaction and get confirmed transactions balances */
+    const coinbaseTransaction = this.createCoinbaseTransaction(address)
+    const balances = this.getAccountBalances()
 
-    let coinbaseTransaction = this.createCoinbaseTransaction(address)
-    let balances = this.getAccountBalances()
-    for (let transaction in pendingTransactions) {
+    /**
+      * looping pending transactions
+      * and assigning pending balances default to zero if not exist to avoid bug
+      */
+    for (const transaction of pendingTransactions) {
       balances[transaction.from] = balances[transaction.from] || 0
       balances[transaction.to] = balances[transaction.to] || 0
-
-      if (balanceFrom >= transaction.fee) {
+      /* validate if balances of current account is greater than fee to create transaction */
+      if (balances[transaction.from] >= transaction.fee) {
         transaction.minedInBlockIndex = nextBlockIndex
         balances[transaction.from] -= transaction.fee
         coinbaseTransaction.value += transaction.fee
+        /* checks after fee the current value to be transacted not greater than current balance */
         if (balances[transaction.from] >= transaction.value) {
-          balances[transaction.from] -= transaction.value;
+          balances[transaction.from] -= transaction.value
           balances[transaction.to] += transaction.value
           transaction.transferSuccessful = true
         } else {
           transaction.transferSuccessful = false
         }
       } else {
-        // this.
+        /* remove a transaction when it does meet the above requirements */
+        this.removePendingTransaction(transaction)
+        pendingTransactions = pendingTransactions
+          .filter(t => t.transactionDataHash !== transaction.transactionDataHash)
       }
     }
+    /* auto calculate the hash */
+    coinbaseTransaction.calculateTransactionDataHash()
+    pendingTransactions = [coinbaseTransaction, ...pendingTransactions]
+
+    const prevBlockHash = this.blocks[this.blocks.length - 1].blockHash
+    const nextBlockCandidate = new Block(
+      nextBlockIndex,
+      pendingTransactions,
+      this.currentDifficulty,
+      prevBlockHash,
+      address,
+    )
+
+    this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
+    return nextBlockCandidate
   }
 
   getPendingTransactions() {
@@ -195,19 +220,19 @@ class Blockchain {
   getTransactionsByAddress(address) {
     // TODO: add validations
     let transactions = this.getAllTransactions()
-    transactions = transactions.filter(transaction => transaction.from === address || transaction.to === address)
+    transactions = transactions
+      .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return { address, transactions }
   }
 
-  removePendingTransactions(transactions) {
-    for (const t of transactions) {
-      this.pendingTransactions = this.pendingTransactions.filter((item) => {
-        return item.transactionDataHash !== t.transactionDataHash
-      })
+  removePendingTransaction(transaction) {
+    const indexOfTransaction = this.pendingTransactions
+      .findIndex(p => p.transactionDataHash === transaction.transactionDataHash)
+    if (indexOfTransaction > 0) {
+      this.pendingTransactions.splice(indexOfTransaction, 1)
     }
   }
-
 }
 
 module.exports = Blockchain

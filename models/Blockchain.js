@@ -132,10 +132,7 @@ class Blockchain {
      * verify initially,  'curr' returns [ Block{, transactions[,Transaction{}]}]
      * not Block[transactions[,Transaction{}]]
      */
-
-    return this.blocks.reduce((acc, cur) => {
-      return [...acc, ...cur[0].transactions]
-    }, [])
+    return this.blocks.reduce((acc, cur) => ([...acc, ...cur[0].transactions]), [])
   }
 
   getTransactionByHash(transactionDataHash) {

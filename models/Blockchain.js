@@ -128,9 +128,13 @@ class Blockchain {
   }
 
   getConfirmedTransactions() {
+    /**
+     * verify initially,  'curr' returns [ Block{, transactions[,Transaction{}]}]
+     * not Block[transactions[,Transaction{}]]
+     */
+
     return this.blocks.reduce((acc, cur) => {
-      acc.push(...cur.transactions)
-      return acc
+      return [...acc, ...cur[0].transactions]
     }, [])
   }
 
@@ -155,8 +159,7 @@ class Blockchain {
   }
 
   getLastBlock() {
-    /* verify, this will make the current state reduce the block every call */
-    return this.blocks.pop()
+    return this.blocks[this.blocks.length - 1]
   }
 
   /* eslint-disable no-restricted-syntax */

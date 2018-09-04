@@ -115,7 +115,9 @@ const initHttpServer = () => {
   })
 
   app.get('/mining/get-mining-job', (req, res) => {
-    // TODO
+    /* initial sample call and to be modified changing params to user pub address */
+    const miningJob = blockchain.getMiningJob(config.nullAddress)
+    res.json(miningJob)
   })
 
   app.post('/mining/submit', (req, res) => {

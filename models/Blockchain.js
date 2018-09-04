@@ -123,25 +123,23 @@ class Blockchain {
     initialFaucetTransaction.minedInBlockIndex = 0
     initialFaucetTransaction.transferSuccessful = true
 
-    return [new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
-      0, genesisDate, undefined)]
+    return new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
+      0, genesisDate, undefined)
   }
 
   getConfirmedTransactions() {
-    /**
-     * verify initially,  'curr' returns [ Block{, transactions[,Transaction{}]}]
-     * not Block[transactions[,Transaction{}]]
-     */
-    return this.blocks.reduce((acc, cur) => ([...acc, ...cur[0].transactions]), [])
+    return this.blocks.reduce((acc, cur) => {
+      acc.push(...cur.transactions)
+      return acc
+    }, [])
   }
 
   getTransactionByHash(transactionDataHash) {
-    const { chain } = this
+    const { blocks } = this
     let transactionData = null
-    const { blocks } = chain
     let counter = 0
 
-    while (!transactionData || counter < blocks.length) {
+    while (!transactionData && counter < blocks.length) {
       const currentBlock = blocks[counter]
       counter += 1
       transactionData = currentBlock.transactions

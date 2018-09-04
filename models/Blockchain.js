@@ -232,31 +232,31 @@ class Blockchain {
 
   submitMinedBlock(minedBlock) {
     const block = this.miningJobs[minedBlock.blockDataHash]
-
-    if (!block) {
-      return { errorMsg: 'Block does not exists!' }
-    }
+    const error = { errorMsg: 'Block not found or already mined' }
+    if (!block) return error
 
     const { nonce, dateCreated, blockHash } = minedBlock
     block.nonce = nonce
     block.dateCreated = dateCreated
     block.blockHash = blockHash
 
-    // TODO: add validations
-  }
-
-  verifyBlock(block) {
-    const lastBlock = this.getLastBlock()
-
-    if (block.index !== this.blocks.length) {
-      return { errorMsg: 'This block has already mined by someone' }
-    }
-    if (lastBlock.blockHash !== block.prevBlockHash) {
-      return { errorMsg: 'Invalid previous block hash' }
-    }
+    const isValid = this.isBlockValid(block)
+    if (!isValid) return error
 
     this.blocks.push(block)
     this.miningJobs = {}
+    this.removeMinedTransactions(block)
+    return { message: `Block accepted, reward paid: ${block.transactions[0].value} microcoins` }
+  }
+
+  isBlockValid(block) {
+    const lastBlock = this.getLastBlock()
+
+    return !(block.index !== this.blocks.length || lastBlock.blockHash !== block.prevBlockHash
+      || block.calculateBlockHash() !== block.blockHash)
+  }
+
+  removeMinedTransactions(block) {
     const minedTransactionHashes = block.transactions.reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
     this.pendingTransactions = this.pendingTransactions.filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
   }

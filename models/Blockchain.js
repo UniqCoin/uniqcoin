@@ -27,8 +27,11 @@ class Blockchain {
   }
 
   get cumulativeDifficulty() {
-    // TO DO
-    return 0
+    let cumulativeDiff = 0
+    this.blocks.forEach((block) => {
+      cumulativeDiff += 16 ** block.difficulty
+    })
+    return cumulativeDiff
   }
 
   get genesisBlock() {
@@ -129,14 +132,6 @@ class Blockchain {
     transactions = transactions.filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return { address, transactions }
-  }
-
-  calculateCumulativeDifficulty() {
-    let totalDifficulty = 0
-    this.blocks.forEach((block) => {
-      totalDifficulty += block.difficulty
-    })
-    return totalDifficulty
   }
 
   getLastBlock() {

@@ -46,6 +46,7 @@ class Blockchain {
     if (!Validation.isValidAddress(to)) {
       return { errorMsg: `Invalid receiver address: ${from}` }
     }
+
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
       senderPubKey, senderSignature)
 
@@ -251,8 +252,10 @@ class Blockchain {
   }
 
   removeMinedTransactions(block) {
-    const minedTransactionHashes = block.transactions.reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
-    this.pendingTransactions = this.pendingTransactions.filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
+    const minedTransactionHashes = block.transactions
+      .reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
+    this.pendingTransactions = this.pendingTransactions
+      .filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
   }
 
   updatePendingTransactions() {

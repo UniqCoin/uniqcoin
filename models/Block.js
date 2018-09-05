@@ -16,11 +16,11 @@ class Block {
     /**
      * Calculate blockdatahash when its undefined
      */
-    if (!this.blockDataHash) this.calculateBlockDataHash()
+    if (!this.blockDataHash) this.blockDataHash = this.calculateBlockDataHash()
     /**
      *  Calculate blockhash when it's null or undefined
      */
-    if (!this.blockHash) this.calculateBlockHash()
+    if (!this.blockHash) this.blockHash = this.calculateBlockHash()
   }
 
   /**
@@ -29,7 +29,7 @@ class Block {
    */
   calculateBlockHash() {
     const stringData = `${this.blockDataHash}|${this.dateCreated}|${this.nonce}`
-    this.blockHash = CryptoJs.SHA256(stringData).toString()
+    return CryptoJs.SHA256(stringData).toString()
   }
 
   /**
@@ -63,7 +63,7 @@ class Block {
     }
 
     const blockDataJSON = JSON.stringify(blockData)
-    this.blockDataHash = CryptoJs.SHA256(blockDataJSON).toString()
+    return CryptoJs.SHA256(blockDataJSON).toString()
   }
 }
 

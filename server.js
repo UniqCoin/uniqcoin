@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 const WebSocket = require('ws')
 const Node = require('./models/Node')
 const Blockchain = require('./models/Blockchain')
-
 const config = require('./config')
 
 const serverHost = process.env.HOST || config.serverHost
@@ -35,6 +34,37 @@ const connectToPeers = (newPeers) => {
 const initHttpServer = () => {
   const app = express()
   app.use(bodyParser.json())
+
+  app.get('/', (req, res) => {
+    const { endpoints } = config
+    const rowItems = endpoints.map(endpoint => (
+      `<tr>
+        <td style="border:1px solid black; padding: 10px">
+          ${endpoint.method}
+        </td>
+        <td style="border:1px solid black; padding: 10px">
+          <a href="${endpoint.link}">
+            ${endpoint.link}
+          </a>
+        </td>
+        <td style="border:1px solid black; padding: 10px">
+          ${endpoint.description}
+        </td>  
+      </tr>`
+    ))
+
+    res.send(
+      `<h1>UniqCoin Block Explorer</h1>
+        <table style="border:2px solid black">
+        <tr>
+          <th style="border:2px solid black; padding: 5px">Method</th>
+          <th style="border:2px solid black; padding: 5px">Path</th>
+          <th style="border:2px solid black; padding: 5px">Desciption</th>
+        </tr>
+         ${rowItems}
+      </table>`,
+    )
+  })
 
   app.get('/info', (req, res) => {
     res.json(node.info)

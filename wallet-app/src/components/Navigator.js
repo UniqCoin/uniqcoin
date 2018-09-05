@@ -20,6 +20,9 @@ const style = {
   },
   linkItem: {
     padding: '5px'
+  },
+  dropdownItem: {
+    padding: '5px',
   }
 }
 
@@ -46,31 +49,38 @@ class Navigator extends Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem style={style.linkItem}>
-                 <Link to='/' style={style.link}>Home</Link>
+                <Link to='/' style={style.link}>Home</Link>
               </NavItem>
               <NavItem style={style.linkItem}>
-                 <Link to='/create-wallet' style={style.link}>Create New Wallet</Link>
+                <Link to='/account' style={style.link}>Account</Link>
               </NavItem>
               <NavItem style={style.linkItem}>
-                 <Link to='/' style={style.link}>Recover Wallet</Link>
+                <Link to='/balance' style={style.link}>Balance</Link>
               </NavItem>
               <NavItem style={style.linkItem}>
-                 <Link to='/' style={style.link}>Export Wallet</Link>
+                <Link to='/send-transaction' style={style.link}>Send Transaction</Link>
               </NavItem>
+              <UncontrolledDropdown nav inNavbar>
+                <DropdownToggle style={style.dropdownItem} nav caret>
+                  Wallet
+                  </DropdownToggle>
+                <DropdownMenu right>
+                  <DropdownItem>
+                    <Link to='/create-wallet' style={style.link}>Create New Wallet</Link>
+                  </DropdownItem>
+                  <DropdownItem>
+                    <Link to='/open-existing-wallet' style={style.link}>Open Wallet</Link>
+                  </DropdownItem>
+                  <DropdownItem>
+                    <Link to='/recover-wallet' style={style.link}>Recover Wallet</Link>
+                  </DropdownItem>
+                  <DropdownItem>
+                    <Link to='/export-wallet' style={style.link}>Export Wallet</Link>
+                  </DropdownItem>
+                </DropdownMenu>
+              </UncontrolledDropdown>
               <NavItem style={style.linkItem}>
-                 <Link to='/open-existing-wallet' style={style.link}>Open existing wallet</Link>
-              </NavItem>
-              <NavItem style={style.linkItem}>
-                 <Link to='/account' style={style.link}>Account</Link>
-              </NavItem>
-              <NavItem style={style.linkItem}>
-                 <Link to='/balance' style={style.link}>Balance</Link>
-              </NavItem>
-              <NavItem style={style.linkItem}>
-                 <Link to='/send-transaction' style={style.link}>Send Transaction</Link>
-              </NavItem>
-              <NavItem style={style.linkItem}>
-                 <Link to='/' style={style.link}>Logout</Link>
+                <Link to='/' style={style.link}>Logout</Link>
               </NavItem>
             </Nav>
           </Collapse>

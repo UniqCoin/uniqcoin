@@ -276,7 +276,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex === null) {
           balance.pendingBalance += transaction.value
         }
-        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+        if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance += transaction.value
         }
         if (transaction.minedInBlockIndex >= 1) {
@@ -288,7 +288,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex === null) {
           balance.pendingBalance -= transaction.value
         }
-        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+        if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance -= transaction.value
         }
         if (transaction.minedInBlockIndex >= 1) {

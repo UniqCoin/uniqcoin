@@ -19,6 +19,14 @@ class Blockchain {
     this.blocks.push(block)
   }
 
+  get cumulativeDifficulty() {
+    let cumulativeDiff = 0
+    this.blocks.forEach((block) => {
+      cumulativeDiff += 16 ** block.difficulty
+    })
+    return cumulativeDiff
+  }
+
   addNewTransaction(transaction) {
     const {
       from,
@@ -46,18 +54,6 @@ class Blockchain {
     return newTransaction
   }
 
-  calculateCumulativeDifficulty() {
-    let totalDifficulty = 0
-    this.blocks.forEach((block) => {
-      totalDifficulty += block.difficulty
-    })
-    return totalDifficulty
-  }
-
-  get confirmedTransactions() {
-    return this.blocks.reduce((accumulator, block) => accumulator.concat(block.transactions))
-  }
-
   createCoinbaseTransaction(toAddress) {
     const {
       nullAddress, coinbaseTxVal, nullPubKey, nullSignature,
@@ -76,13 +72,6 @@ class Blockchain {
     transaction.transferSuccessful = true
     return transaction
   }
-
-
-  get cumulativeDifficulty() {
-    // TO DO
-    return 0
-  }
-
 
   getAccountBalances() {
     const transactions = this.getConfirmedTransactions()
@@ -123,25 +112,23 @@ class Blockchain {
     initialFaucetTransaction.minedInBlockIndex = 0
     initialFaucetTransaction.transferSuccessful = true
 
-    return [new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
-      0, genesisDate, undefined)]
+    return new Block(0, [initialFaucetTransaction], 0, undefined, undefined, nullAddress,
+      0, genesisDate, undefined)
   }
 
   getConfirmedTransactions() {
-    /**
-     * verify initially,  'curr' returns [ Block{, transactions[,Transaction{}]}]
-     * not Block[transactions[,Transaction{}]]
-     */
-    return this.blocks.reduce((acc, cur) => ([...acc, ...cur[0].transactions]), [])
+    return this.blocks.reduce((acc, cur) => {
+      acc.push(...cur.transactions)
+      return acc
+    }, [])
   }
 
   getTransactionByHash(transactionDataHash) {
-    const { chain } = this
+    const { blocks } = this
     let transactionData = null
-    const { blocks } = chain
     let counter = 0
 
-    while (!transactionData || counter < blocks.length) {
+    while (!transactionData && counter < blocks.length) {
       const currentBlock = blocks[counter]
       counter += 1
       transactionData = currentBlock.transactions
@@ -226,12 +213,93 @@ class Blockchain {
     return { address, transactions }
   }
 
+  removePendingTransactions(transactions) {
+    for (const t of transactions) {
+      this.pendingTransactions = this.pendingTransactions.filter(item => item.transactionDataHash !== t.transactionDataHash)
+    }
+  }
+
+  submitMinedBlock(minedBlock) {
+    const block = this.miningJobs[minedBlock.blockDataHash]
+    const error = { errorMsg: 'Block not found or already mined' }
+    if (!block) return error
+
+    const { nonce, dateCreated, blockHash } = minedBlock
+    block.nonce = nonce
+    block.dateCreated = dateCreated
+    block.blockHash = blockHash
+
+    const isValid = this.isBlockValid(block)
+    if (!isValid) return error
+
+    this.blocks.push(block)
+    this.miningJobs = {}
+    this.removeMinedTransactions(block)
+    return { message: `Block accepted, reward paid: ${block.transactions[0].value} microcoins` }
+  }
+
+  isBlockValid(block) {
+    const lastBlock = this.getLastBlock()
+
+    return !(block.index !== this.blocks.length || lastBlock.blockHash !== block.prevBlockHash
+      || block.calculateBlockHash() !== block.blockHash)
+  }
+
+  removeMinedTransactions(block) {
+    const minedTransactionHashes = block.transactions.reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
+    this.pendingTransactions = this.pendingTransactions.filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
+  }
+
+  updatePendingTransactions() {
+
+  }
+
   removePendingTransaction(transaction) {
     const indexOfTransaction = this.pendingTransactions
       .findIndex(p => p.transactionDataHash === transaction.transactionDataHash)
     if (indexOfTransaction > 0) {
       this.pendingTransactions.splice(indexOfTransaction, 1)
     }
+  }
+
+  getAccountBalanceByAddress(address) {
+    const transactions = this.getAccountBalanceByAddress(address)
+    const balance = {
+      safeBalance: 0,
+      confirmedBalance: 0,
+      pendingBalance: 0,
+    }
+
+    const safeValue = this.blocks.length - config.safeConfirmCount
+    transactions.forEach((transaction) => {
+      if (transaction.to === address) {
+        if (transaction.minedInBlockIndex === null) {
+          balance.pendingBalance += transaction.value
+        }
+        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+          balance.safeBalance += transaction.value
+        }
+        if (transaction.minedInBlockIndex >= 1) {
+          balance.confirmedBalance += transaction.value
+        }
+      }
+      if (transaction.from === address) {
+        balance.pendingBalance -= transaction.fee
+        if (transaction.minedInBlockIndex === null) {
+          balance.pendingBalance -= transaction.value
+        }
+        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+          balance.safeBalance -= transaction.value
+        }
+        if (transaction.minedInBlockIndex >= 1) {
+          balance.confirmedBalance -= transaction.fee
+          if (transaction.transferSuccessful) {
+            balance.confirmedBalance -= transaction.value
+          }
+        }
+      }
+    })
+    return balance
   }
 }
 

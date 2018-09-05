@@ -160,6 +160,46 @@ class Blockchain {
     transaction.transferSuccessful = true
     return transaction
   }
+
+  getAccountBalanceByAddress(address) {
+    const transactions = this.getAccountBalanceByAddress(address)
+    const balance = {
+      safeBalance: 0,
+      confirmedBalance: 0,
+      pendingBalance: 0,
+    }
+
+    const safeValue = this.blocks.length - config.safeConfirmCount
+    transactions.forEach((transaction) => {
+      if (transaction.to === address) {
+        if (transaction.minedInBlockIndex === null) {
+          balance.pendingBalance += transaction.value
+        }
+        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+          balance.safeBalance += transaction.value
+        }
+        if (transaction.minedInBlockIndex >= 1) {
+          balance.confirmedBalance += transaction.value
+        }
+      }
+      if (transaction.from === address) {
+        balance.pendingBalance -= transaction.fee
+        if (transaction.minedInBlockIndex === null) {
+          balance.pendingBalance -= transaction.value
+        }
+        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+          balance.safeBalance -= transaction.value
+        }
+        if (transaction.minedInBlockIndex >= 1) {
+          balance.confirmedBalance -= transaction.fee
+          if (transaction.transferSuccessful) {
+            balance.confirmedBalance -= transaction.value
+          }
+        }
+      }
+    })
+    return balance
+  }
 }
 
 module.exports = Blockchain

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 const Block = require('./Block')
 const Transaction = require('./Transaction')
-
+const Validation = require('../helpers/Validation')
 const config = require('../config')
 
 class Blockchain {
@@ -40,7 +40,12 @@ class Blockchain {
     } = transaction
 
     // TODO: add validations
-
+    if (!Validation.isValidAddress(from)) {
+      return { errorMsg: `Invalid sender address: ${from}` }
+    }
+    if (!Validation.isValidAddress(to)) {
+      return { errorMsg: `Invalid receiver address: ${from}` }
+    }
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
       senderPubKey, senderSignature)
 

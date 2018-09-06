@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this */
 const Block = require('./Block')
 const Transaction = require('./Transaction')
-
+const Validation = require('../helpers/Validation')
 const config = require('../config')
 
 class Blockchain {
-  constructor(blocks = [this.genesisBlock], currentDifficulty = 1) {
+  constructor(blocks = [this.genesisBlock], currentDifficulty = 4) {
     this.blocks = blocks
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
@@ -40,6 +40,12 @@ class Blockchain {
     } = transaction
 
     // TODO: add validations
+    if (!Validation.isValidAddress(from)) {
+      return { errorMsg: `Invalid sender address: ${from}` }
+    }
+    if (!Validation.isValidAddress(to)) {
+      return { errorMsg: `Invalid receiver address: ${from}` }
+    }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
       senderPubKey, senderSignature)
@@ -224,10 +230,13 @@ class Blockchain {
     const error = { errorMsg: 'Block not found or already mined' }
     if (!block) return error
 
-    const { nonce, dateCreated, blockHash } = minedBlock
+    const {
+      nonce, dateCreated, blockDataHash, blockHash,
+    } = minedBlock
     block.nonce = nonce
     block.dateCreated = dateCreated
     block.blockHash = blockHash
+    block.blockDataHash = blockDataHash
 
     const isValid = this.isBlockValid(block)
     if (!isValid) return error
@@ -241,13 +250,15 @@ class Blockchain {
   isBlockValid(block) {
     const lastBlock = this.getLastBlock()
 
-    return !(block.index !== this.blocks.length || lastBlock.blockHash !== block.prevBlockHash
-      || block.calculateBlockHash() !== block.blockHash)
+    return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
+      && block.calculateBlockHash() === block.blockHash
   }
 
   removeMinedTransactions(block) {
-    const minedTransactionHashes = block.transactions.reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
-    this.pendingTransactions = this.pendingTransactions.filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
+    const minedTransactionHashes = block.transactions
+      .reduce((acc, cur) => acc.add(cur.transactionDataHash), new Set())
+    this.pendingTransactions = this.pendingTransactions
+      .filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
   }
 
   updatePendingTransactions() {

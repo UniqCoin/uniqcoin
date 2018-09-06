@@ -144,14 +144,19 @@ const initHttpServer = () => {
     // TODO
   })
 
-  app.get('/mining/get-mining-job', (req, res) => {
+  app.get('/mining/get-mining-job/:minerAddress', (req, res) => {
     /* initial sample call and to be modified changing params to user pub address */
-    const miningJob = blockchain.getMiningJob(config.nullAddress)
+    const { minerAddress } = req.params
+    const miningJob = blockchain.getMiningJob(minerAddress)
+
     res.json(miningJob)
   })
 
   app.post('/mining/submit', (req, res) => {
     // TODO
+    const minedBlock = req.body
+    const result = blockchain.submitMinedBlock(minedBlock)
+    res.send(result)
   })
 
   app.listen(serverPort, () => console.log(`Listening http on port ${serverPort}`))

@@ -122,6 +122,8 @@ const initHttpServer = () => {
 
   app.post('/mining/submit', (req, res) => {
     // TODO
+    console.log(req.body)
+    res.send('Block Accepted')
   })
 
   app.listen(serverPort, () => console.log(`Listening http on port ${serverPort}`))

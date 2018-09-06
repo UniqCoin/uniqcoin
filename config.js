@@ -13,6 +13,7 @@ const coinbaseTxVal = 5000000
 
 const faucetAddress = 'notimplemented'
 const faucetTxVal = 1000000000000
+const safeConfirmCount = 6
 
 module.exports = {
   port,
@@ -25,4 +26,5 @@ module.exports = {
   coinbaseTxVal,
   faucetAddress,
   faucetTxVal,
+  safeConfirmCount,
 }

@@ -22,13 +22,12 @@ class Miner {
     return axios(options)
   }
 
-  calculateHash(prevHash, timestamp, nonce) {
-    const data = `${prevHash}|${timestamp}|${nonce}`
-    return CryptoJS.SHA256(data).toString()
+  calculateHash(blockDataHash, timestamp, nonce) {
+    return CryptoJS.SHA256(`${blockDataHash}|${timestamp}|${nonce}`).toString()
   }
 
   getMiningJob() {
-    return axios.get(`${this.nodeURL.origin}/mining/get-mining-job`)
+    return axios.get(`${this.nodeURL.origin}/mining/get-mining-job/${this.address}`)
   }
 
   getBlockByIndex(index) {
@@ -36,23 +35,23 @@ class Miner {
   }
 
   async mineBlock() {
-    let getMiningJobResponse
+    let miningJobResponse
     try {
-      getMiningJobResponse = await this.getMiningJob()
+      miningJobResponse = await this.getMiningJob()
     } catch (error) {
       console.log('Failed to get mining job')
     }
 
-    const { difficulty, blockDataHash } = getMiningJobResponse.data
+    const { difficulty, blockDataHash } = miningJobResponse.data
     const isValidHash = blockHash => blockHash.substring(0, difficulty) === Array(difficulty + 1).join('0')
 
-    let nonce = 0
+    let nonce = -1
     let nextHash
     let nextTimeStamp
     do {
+      nonce += 1
       nextTimeStamp = new Date().toISOString()
       nextHash = this.calculateHash(blockDataHash, nextTimeStamp, nonce)
-      nonce += 1
     } while (!isValidHash(nextHash))
 
     const result = {
@@ -74,12 +73,20 @@ class Miner {
 
   async mineIndefinitely() {
     if (cluster.isMaster) {
+      let minerJobBlockIndex
       const spawnMiner = () => {
         const miner = cluster.fork()
 
         miner.on('message', async (msg) => {
           if (msg === 'START_NEW_MINING_JOB') {
             spawnMiner()
+
+            try {
+              minerJobBlockIndex = await this.getMiningJobBlockIndex()
+            } catch (error) {
+              console.log('Failed to get mining job')
+            }
+
             miner.kill()
           }
         })
@@ -87,7 +94,6 @@ class Miner {
         return miner
       }
       let miner = spawnMiner()
-      let minerJobBlockIndex
 
       try {
         minerJobBlockIndex = await this.getMiningJobBlockIndex()
@@ -102,7 +108,7 @@ class Miner {
         } catch (error) {
           console.log('Failed to get mining job')
         }
-        console.log('check new block index')
+
         if (minerJobBlockIndex !== latestJobBlockIndex) {
           miner.kill()
           miner = spawnMiner()

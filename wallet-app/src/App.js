@@ -10,11 +10,6 @@ import Balance from './components/smart/Balance'
 import CreateWallet from './components/smart/WalletCreation'
 import PrivateRoute from './components/ProtectedRoute'
 
-
-
-
-
-
 class App extends Component {
   render() {
     return (

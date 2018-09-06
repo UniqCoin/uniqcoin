@@ -61,7 +61,7 @@ const initHttpServer = () => {
           <th style="border:2px solid black; padding: 5px">Path</th>
           <th style="border:2px solid black; padding: 5px">Desciption</th>
         </tr>
-         ${rowItems}
+         ${rowItems.join('')}
       </table>`,
     )
   })

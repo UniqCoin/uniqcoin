@@ -126,7 +126,11 @@ class Node {
     })
 
     app.get('/address/:address/balance', (req, res) => {
-      // TODO
+      const { address } = req.params
+      const result = this.chain.getAccountBalanceByAddress(address)
+      const { errorMsg } = result
+      if (errorMsg) res.status(404).send(errorMsg)
+      res.json(result)
     })
 
     app.post('/transaction/send', (req, res) => {

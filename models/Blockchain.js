@@ -154,6 +154,9 @@ class Blockchain {
 
   /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid sender address: ${address}` }
+    }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
     let pendingTransactions = JSON.parse(JSON.stringify(this.getPendingTransactions()))
@@ -216,7 +219,7 @@ class Blockchain {
     transactions = transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
-    return { address, transactions }
+    return transactions
   }
 
   removePendingTransactions(transactions) {
@@ -274,7 +277,7 @@ class Blockchain {
   }
 
   getAccountBalanceByAddress(address) {
-    const transactions = this.getAccountBalanceByAddress(address)
+    const transactions = this.getTransactionsByAddress(address)
     const balance = {
       safeBalance: 0,
       confirmedBalance: 0,

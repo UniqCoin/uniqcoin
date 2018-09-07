@@ -5,12 +5,11 @@ const Validator = {
   isValidPublicAddress: pk => /^[0-9a-f]{65}$/.test(pk),
   isValidDifficulty: (hash, difficulty) => {
     if (Number.isInteger(difficulty)) {
-      for (let index = 0; index < difficulty; index++) {
-        if (hash[index] !== '0') {
-          return false
-        }
+      const regEx = /^(0+)g/.exec(hash)
+      if (regEx) {
+        return regEx[0].length === difficulty
       }
-      return true
+      return false
     }
     return false
   },

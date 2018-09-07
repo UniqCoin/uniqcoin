@@ -5,7 +5,7 @@ const Validation = require('../helpers/Validation')
 const config = require('../config')
 
 class Blockchain {
-  constructor(blocks = [this.genesisBlock], currentDifficulty = 1) {
+  constructor(blocks = [this.genesisBlock], currentDifficulty = 4) {
     this.blocks = blocks
     this.currentDifficulty = currentDifficulty
     this.miningJobs = {}
@@ -230,10 +230,13 @@ class Blockchain {
     const error = { errorMsg: 'Block not found or already mined' }
     if (!block) return error
 
-    const { nonce, dateCreated, blockHash } = minedBlock
+    const {
+      nonce, dateCreated, blockDataHash, blockHash,
+    } = minedBlock
     block.nonce = nonce
     block.dateCreated = dateCreated
     block.blockHash = blockHash
+    block.blockDataHash = blockDataHash
 
     const isValid = this.isBlockValid(block)
     if (!isValid) return error
@@ -247,8 +250,8 @@ class Blockchain {
   isBlockValid(block) {
     const lastBlock = this.getLastBlock()
 
-    return !(block.index !== this.blocks.length || lastBlock.blockHash !== block.prevBlockHash
-      || block.calculateBlockHash() !== block.blockHash)
+    return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
+      && block.calculateBlockHash() === block.blockHash
   }
 
   removeMinedTransactions(block) {
@@ -284,7 +287,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex === null) {
           balance.pendingBalance += transaction.value
         }
-        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+        if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance += transaction.value
         }
         if (transaction.minedInBlockIndex >= 1) {
@@ -296,7 +299,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex === null) {
           balance.pendingBalance -= transaction.value
         }
-        if (transaction.minedInBlockIndex >= safeValue && transaction.transferSuccessful) {
+        if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance -= transaction.value
         }
         if (transaction.minedInBlockIndex >= 1) {

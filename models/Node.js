@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const axios = require('axios')
 const Blockchain = require('./Blockchain')
+const config = require('./../config')
 
 class Node {
   constructor(serverHost, serverPort, chain) {

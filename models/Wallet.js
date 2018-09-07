@@ -8,15 +8,18 @@ const keypair = secp256k1.genKeyPair()
 
 class Wallet {
   constructor(data) {
-    this.privateKey = data.privateKey
-    /**
-     * generate wallet when instantiated and has no private key as param
-     */
-    if (!data.privateKey) this.generateWallet()
-    /**
-     *  recover, find wallet given the private key as param
-     */
-    if (data.privateKey) this.recoverWallet(data.privateKey)
+    if (data) {
+      /**
+       * generate wallet when instantiated and has no private key as param
+       */
+      if (!data.privateKey) this.generateWallet()
+      /**
+       *  recover, find wallet given the private key as param
+       */
+      if (data.privateKey) this.recoverWallet(data.privateKey)
+    } else {
+      this.generateWallet()
+    }
   }
 
   /**

@@ -1,5 +1,4 @@
 const port = 5555
-const p2pPort = 6001
 const serverHost = 'localhost'
 
 const nullAddress = '0000000000000000000000000000000000000000'
@@ -17,7 +16,6 @@ const safeConfirmCount = 6
 
 module.exports = {
   port,
-  p2pPort,
   serverHost,
   nullAddress,
   nullPubKey,

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap';
 import Wallet from '../../models/Wallet'
 
-import WalletData from '../dumb/forms/WalletData'
+import WalletDataForm from '../dumb/forms/WalletDataForm'
 
 class CreateWallet extends Component {
 	constructor() {
@@ -30,7 +30,7 @@ class CreateWallet extends Component {
 				<Row>
 					{
 						wallet ?
-						<WalletData
+						<WalletDataForm
 							privateKey={wallet.privateKey}
 							publicKey={wallet.publicKey}
 							address={wallet.address}

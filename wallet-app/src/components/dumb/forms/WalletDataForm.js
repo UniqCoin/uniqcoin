@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, InputGroup, InputGroupAddon, InputGroupText, Input } from 'reactstrap';
 
-const WalletData = (props) => (
+const WalletDataForm = (props) => (
   <Form>
     <InputGroup>
       <InputGroupAddon addonType="prepend">
@@ -24,4 +24,4 @@ const WalletData = (props) => (
   </Form>
 )
 
-export default WalletData
+export default WalletDataForm

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap';
 import Wallet from '../../models/Wallet'
-
+import { withRouter } from "react-router-dom";
 import WalletDataForm from '../dumb/forms/WalletDataForm'
 
 class CreateWallet extends Component {
@@ -15,7 +15,12 @@ class CreateWallet extends Component {
 	generateWallet() {
 		const wallet = new Wallet()
 		sessionStorage.setItem('wallet', JSON.stringify(wallet))
+		sessionStorage.setItem('createdWallet', true)
 		this.setState({ wallet })
+	}
+
+	navigateToHome() {
+		this.props.history.push('/')
 	}
 
 	render() {
@@ -38,9 +43,10 @@ class CreateWallet extends Component {
 						/> : null
 					}
 				</Row>
+				<Button onClick={() => this.navigateToHome()}> click me</Button>
 			</Container>
 		)
 	}
 }
 
-export default CreateWallet
+export default withRouter(CreateWallet)

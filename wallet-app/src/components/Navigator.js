@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Link , withRouter} from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, withRouter } from "react-router-dom";
 import {
   Collapse,
   Navbar,
@@ -7,7 +7,6 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -41,7 +40,7 @@ class Navigator extends Component {
       isOpen: !this.state.isOpen
     });
   }
-  
+
   navigateToHome() {
     this.props.history.push('/')
   }
@@ -69,9 +68,11 @@ class Navigator extends Component {
                   <Link to='/balance' style={style.link}>Balance</Link>
                 </NavItem>
               }
-              <NavItem style={style.linkItem}>
-                <Link to='/send-transaction' style={style.link}>Send Transaction</Link>
-              </NavItem>
+              {wallet &&
+                <NavItem style={style.linkItem}>
+                  <Link to='/send-transaction' style={style.link}>Send Transaction</Link>
+                </NavItem>
+              }
               {
                 !wallet &&
                 <UncontrolledDropdown nav inNavbar>

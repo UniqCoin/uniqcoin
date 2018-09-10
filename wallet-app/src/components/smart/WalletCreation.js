@@ -1,22 +1,28 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap';
+import { Container, Alert, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap';
 import Wallet from '../../models/Wallet'
 import { withRouter } from "react-router-dom";
 import WalletDataForm from '../dumb/forms/WalletDataForm'
 
+const styles = {
+	notificationAlert: {
+		padding: '8px'
+	}
+}
 class CreateWallet extends Component {
 	constructor() {
 		super()
 		this.state = {
-				wallet: null
+			wallet: null,
+			generated: false,
 		}
 	}
 
 	generateWallet() {
 		const wallet = new Wallet()
 		sessionStorage.setItem('wallet', JSON.stringify(wallet))
-		sessionStorage.setItem('createdWallet', true)
-		this.setState({ wallet })
+		sessionStorage.setItem('confirmationPending', true)
+		this.setState({ wallet, generated: true })
 	}
 
 	navigateToHome() {
@@ -25,25 +31,42 @@ class CreateWallet extends Component {
 
 	render() {
 		const { wallet } = this.state
-		return(
+		return (
 			<Container>
 				<Row>
 					<h1>Create new Wallet</h1>
 				</Row>
-				<Row>
-					<Button onClick={this.generateWallet.bind(this)}>Generate Wallet</Button>
-				</Row>
-				<Row>
-					{
-						wallet ?
+				{!this.state.generated &&
+					<Row>
+						<Button onClick={this.generateWallet.bind(this)}>Generate Wallet</Button>
+					</Row>
+				}
+				{
+					wallet ?
 						<WalletDataForm
 							privateKey={wallet.privateKey}
 							publicKey={wallet.publicKey}
 							address={wallet.address}
 						/> : null
-					}
-				</Row>
-				<Button onClick={() => this.navigateToHome()}> click me</Button>
+				}
+				{this.state.generated &&
+					<div style={styles.notificationAlert}>
+						<Alert color="warning">
+							<h4>Warning!</h4>
+							<p>
+								Please save your private key in a safeplace.
+							</p>
+							<hr />
+							<h6>
+								Note!
+							</h6>
+							<p>
+								Private key cannot be restored!.
+					  		    <Button color='link' onClick={() => this.navigateToHome()}> Click here if you have save it! </Button>
+							</p>
+						</Alert>
+					</div>
+				}
 			</Container>
 		)
 	}

@@ -6,11 +6,11 @@ const Blockchain = require('./Blockchain')
 const config = require('./../config')
 
 class Node {
-  constructor(serverHost, serverPort, chain) {
+  constructor(host, port, chain) {
     this.nodeId = (new Date()).getTime().toString(16) + Math.random().toString(16).substring(2)
-    this.host = serverHost
-    this.port = serverPort
-    this.selfURL = `http://${serverHost}:${serverPort}`
+    this.selfURL = new URL(`${host}:${port}`).origin
+    this.host = host
+    this.port = port
     this.peers = {}
     this.chain = chain
   }
@@ -23,18 +23,99 @@ class Node {
     return this.chain.blocks[index]
   }
 
+  get chainId() {
+    return this.chain.genesisBlock.blockHash
+  }
+
   get info() {
     return {
       about: 'UniqCoin',
       nodeId: this.nodeId,
       chainId: this.chain.genesisBlock.blockHash,
-      nodeUrl: this.selfUrl,
+      nodeUrl: this.selfURL,
       peers: Object.keys(this.peers).length,
       currentDifficulty: this.chain.currentDifficulty,
-      blocksCount: this.chain.length,
+      blocksCount: this.chain.blocks.length,
       cumulativeDifficulty: this.chain.cumulativeDifficulty,
       confirmedTransactions: this.chain.getConfirmedTransactions().length,
       pendingTransactions: this.chain.getPendingTransactions().length,
+    }
+  }
+
+  async synchronizeNodeFromPeer(peerInfo) {
+    const peerCumulativeDifficulty = peerInfo.cumulativeDifficulty
+    const peerBlocksCount = peerInfo.blocksCount
+
+    if (this.cumulativeDifficulty < peerCumulativeDifficulty
+      || this.chain.blocks.length < peerBlocksCount) {
+      await this.synchronizeChainFromPeer(peerInfo)
+      await this.synchronizePendingTransactionsFromPeer(peerInfo)
+    }
+  }
+
+  async synchronizeChainFromPeer(peerInfo) {
+    const peerUrl = peerInfo.nodeUrl
+
+    let peerBlockchain
+    try {
+      const response = await axios.get(`${peerUrl}/blocks`)
+      peerBlockchain = response.data
+    } catch (error) {
+      console.log('error', error.response)
+    }
+
+    // TODO peer blockchain validation
+
+    this.chain = peerBlockchain
+    this.notifyPeersOfNewChain(peerInfo)
+  }
+
+  async synchronizePendingTransactionsFromPeer(peerInfo) {
+    const peerUrl = peerInfo.nodeUrl
+
+    let peerPendingTransactions
+    try {
+      const response = await axios.get(`${peerUrl}/transactions/pending`)
+      peerPendingTransactions = response.data
+    } catch (error) {
+      console.log('error', error.response)
+    }
+
+    let a = peerPendingTransactions.length
+    while (a--) {
+      let isUnique = true
+      let b = this.chain.pendingTransactions.length
+      while (b--) {
+        if (this.chain.pendingTransactions[b].transactionDataHash
+          === peerPendingTransactions[a].transactionDataHash) {
+          isUnique = false
+          break
+        }
+      }
+
+      if (isUnique) {
+        this.chain.pendingTransactions.push(peerPendingTransactions[a])
+      }
+    }
+  }
+
+  notifyPeersOfNewChain(peerInfo) {
+    for (const nodeId in this.peers) {
+      if (this.peers[nodeId]) {
+        try {
+          const { blocksCount, cumulativeDifficulty, nodeUrl } = peerInfo
+          const options = {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            data: JSON.stringify({ blocksCount, cumulativeDifficulty, nodeUrl }),
+            url: `${this.peers[nodeId]}/peers/notify-new-block`,
+          }
+
+          axios(options)
+        } catch (error) {
+          console.log(error.data)
+        }
+      }
     }
   }
 
@@ -99,7 +180,7 @@ class Node {
     })
 
     app.get('/transactions/pending', (req, res) => {
-      // TODO
+      res.json(this.chain.getPendingTransactions())
     })
 
     app.get('/transactions/confirmed', (req, res) => {
@@ -143,15 +224,56 @@ class Node {
     })
 
     app.post('/peers/connect', async (req, res) => {
-      const peerUrl = new URL(req.body.peerUrl)
-      const response = await axios.get(`${peerUrl.origin}/info`)
+      let peerUrl
+      try {
+        peerUrl = new URL(req.body.peerUrl)
+      } catch (error) {
+        res.status(500).send('Invalid Peer URL')
+      }
+
+      let response
+      try {
+        response = await axios.get(`${peerUrl.origin}/info`)
+      } catch (error) {
+        res.status(500).send(`Could not connect to ${peerUrl.origin}`)
+      }
+
       const peerInfo = response.data
-      console.log(peerInfo)
-      res.send()
+      const { nodeId, chainId } = peerInfo
+
+      if (this.peers[nodeId]) {
+        res.status(409).send({
+          errorMsg: `Already connected to ${peerUrl.origin}`,
+        })
+      } else if (this.chainId !== chainId) {
+        res.status(400).send({
+          errorMsg: `Node chain ID does not match to ${peerUrl.origin} chain ID`,
+        })
+      } else {
+        for (const prop in this.peers) {
+          if (this.peers[prop] === peerUrl.origin) {
+            delete this.peers[prop]
+          }
+        }
+
+        this.peers[nodeId] = peerUrl.origin
+
+        await this.synchronizeNodeFromPeer(peerInfo)
+
+        res.status(200).send({
+          message: `Connected to peer ${peerUrl.origin}`,
+        })
+      }
     })
 
-    app.post('/peers/notify-new-block', (req, res) => {
-      // TODO
+    app.post('/peers/notify-new-block', async (req, res) => {
+      const peerInfo = req.body
+
+      await this.synchronizeNodeFromPeer(peerInfo)
+
+      res.status(200).send({
+        message: 'Thank you for the notification.',
+      })
     })
 
     app.get('/mining/get-mining-job/:minerAddress', (req, res) => {

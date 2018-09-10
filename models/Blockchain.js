@@ -206,10 +206,6 @@ class Blockchain {
     return nextBlockCandidate
   }
 
-  getPendingTransactions() {
-    return this.pendingTransactions
-  }
-
   getTransactionsByAddress(address) {
     // TODO: add validations
     let transactions = this.getAllTransactions()

@@ -1,5 +1,5 @@
 const port = 5555
-const serverHost = 'localhost'
+const serverHost = 'http://localhost'
 
 const nullAddress = '0000000000000000000000000000000000000000'
 const nullPubKey = '00000000000000000000000000000000000000000000000000000000000000000'

@@ -1,0 +1,17 @@
+{
+  "name": "miner-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cluster": "^0.7.7",
+    "crypto-js": "^3.1.9-1",
+    "os": "^0.1.1"
+  }
+}

@@ -34,6 +34,8 @@ const endpoints = [
   { method: 'GET', link: '/mining/submit', description: 'mining submit desc' },
 ]
 
+const miningFee = 10
+
 module.exports = {
   port,
   serverHost,
@@ -46,4 +48,5 @@ module.exports = {
   faucetTxVal,
   safeConfirmCount,
   endpoints,
+  miningFee,
 }

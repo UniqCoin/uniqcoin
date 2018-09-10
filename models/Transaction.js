@@ -13,9 +13,9 @@ class Transaction {
     this.data = data
     this.senderPubKey = senderPubKey
     this.senderSignature = senderSignature
-    this.transactionDataHash = null
     this.minedInBlockIndex = null
     this.transferSuccessful = null
+    this.transactionDataHash = null
     this.calculateTransactionDataHash()
   }
 

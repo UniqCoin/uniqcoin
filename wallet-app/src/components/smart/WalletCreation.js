@@ -14,6 +14,7 @@ class CreateWallet extends Component {
 
 	generateWallet() {
 		const wallet = new Wallet()
+		sessionStorage.setItem('wallet', JSON.stringify(wallet))
 		this.setState({ wallet })
 	}
 

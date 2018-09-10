@@ -9,6 +9,8 @@ import Account from './components/smart/Account'
 import Balance from './components/smart/Balance'
 import SendTransaction from './components/smart/SendTransaction'
 import CreateWallet from './components/smart/WalletCreation'
+import RecoverWallet from './components/smart/RecoverWallet'
+
 import PrivateRoute from './components/ProtectedRoute'
 import ModifiedRoute from './components/ModifiedRoute'
 
@@ -28,6 +30,7 @@ class App extends Component {
             <PrivateRoute path='/balance' component={Balance}/>
             <PrivateRoute path='/send-transaction' component={SendTransaction}/>
             <ModifiedRoute path='/create-wallet' component={CreateWallet}/>
+            <ModifiedRoute path='/recover-wallet' component={RecoverWallet}/>
           </Switch>
         </div>
       </Router>

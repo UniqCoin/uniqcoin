@@ -33,13 +33,9 @@ class CreateWallet extends Component {
       <div style={styles.notificationAlert}>
         <Alert color="warning">
           <h4>Warning!</h4>
-          <p>
-            Please save your private key in a safeplace.
-				</p>
+          <p> Please save your private key in a safeplace. </p>
           <hr />
-          <h6>
-            Note!
-				</h6>
+          <h6>Note!</h6>
           <p>
             Private key cannot be restored!.
 					  <Button color='link' onClick={() => this.navigateToHome()}> Click here if you have save it! </Button>

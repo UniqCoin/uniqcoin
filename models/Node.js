@@ -50,6 +50,7 @@ class Node {
       || this.chain.blocks.length < peerBlocksCount) {
       await this.synchronizeChainFromPeer(peerInfo)
       await this.synchronizePendingTransactionsFromPeer(peerInfo)
+      this.chain.miningJobs = {}
     }
   }
 

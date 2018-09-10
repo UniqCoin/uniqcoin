@@ -38,11 +38,15 @@ class Node {
       blocksCount: this.chain.blocks.length,
       cumulativeDifficulty: this.chain.cumulativeDifficulty,
       confirmedTransactions: this.chain.getConfirmedTransactions().length,
-      pendingTransactions: this.chain.getPendingTransactions().length,
+      pendingTransactions: this.chain.pendingTransactions.length,
     }
   }
 
-  async synchronizeNodeFromPeer(peerInfo) {
+  isValidPeerBlockchain(peerBlockchain) {
+    // TODO
+  }
+
+  async synchronizeFromPeer(peerInfo) {
     const peerCumulativeDifficulty = peerInfo.cumulativeDifficulty
     const peerBlocksCount = peerInfo.blocksCount
 
@@ -66,6 +70,7 @@ class Node {
     }
 
     // TODO peer blockchain validation
+    this.isValidPeerBlockchain(peerBlockchain)
 
     this.chain = peerBlockchain
     this.notifyPeersOfNewChain(peerInfo)
@@ -181,7 +186,7 @@ class Node {
     })
 
     app.get('/transactions/pending', (req, res) => {
-      res.json(this.chain.getPendingTransactions())
+      res.json(this.chain.pendingTransactions)
     })
 
     app.get('/transactions/confirmed', (req, res) => {
@@ -259,7 +264,7 @@ class Node {
 
         this.peers[nodeId] = peerUrl.origin
 
-        await this.synchronizeNodeFromPeer(peerInfo)
+        await this.synchronizeFromPeer(peerInfo)
 
         res.status(200).send({
           message: `Connected to peer ${peerUrl.origin}`,
@@ -270,7 +275,7 @@ class Node {
     app.post('/peers/notify-new-block', async (req, res) => {
       const peerInfo = req.body
 
-      await this.synchronizeNodeFromPeer(peerInfo)
+      await this.synchronizeFromPeer(peerInfo)
 
       res.status(200).send({
         message: 'Thank you for the notification.',

@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import CryptoJS from 'crypto-js'
-const EC = require('elliptic').ec
+import elliptic from 'elliptic'
 import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap'
-import { miningFee } from '../../../../config.js'
+import { transactionFee } from '../../config.js'
 import Wallet from '../../models/Wallet'
-const secp256k1 = new EC('secp256k1')
-
 import SendTransactionForm from '../dumb/forms/SendTransactionForm'
+
+const secp256k1 = new elliptic.ec('secp256k1')
+
 
 class SendTransaction extends Component {
 	constructor() {
@@ -24,23 +25,25 @@ class SendTransaction extends Component {
 
   componentDidMount() {
     const wallet = JSON.parse(sessionStorage.getItem('wallet'))
-    const transactionData = {
-      from: wallet.address,
-      to: '',
-      value: '',
-      fee: miningFee,
-      dateCreated: null,
-      data: '',
-      senderPubkey: wallet.publicKey,
+    if (wallet) {
+      const transactionData = {
+        from: wallet.address,
+        to: '',
+        value: '',
+        fee: transactionFee,
+        dateCreated: null,
+        data: '',
+        senderPubkey: wallet.publicKey,
+      }
+      this.setState({ transactionData })
     }
-    this.setState({ transactionData })
   }
   
   signTransaction() {
     const { transactionData } = this.state
     const wallet = JSON.parse(sessionStorage.getItem('wallet'))
-    transactionJSON = JSON.stringify(transactionData)
-    const transactionDataHash = CryptoJS.SHA256(transactionData).toString()
+    const transactionJSON = JSON.stringify(transactionData)
+    const transactionDataHash = CryptoJS.SHA256(transactionJSON).toString()
     const senderSignature = this.signData(transactionDataHash, wallet.privateKey)
     const signedTransaction = Object.assign(transactionData, { transactionDataHash, senderSignature })
     this.setState({ signedTransaction })

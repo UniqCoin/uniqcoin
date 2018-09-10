@@ -1,17 +1,21 @@
 import axios from 'axios'
 
+import { nodeServerHost, nodePort } from './config'
+
+const url = `${nodeServerHost}:${nodePort}`
+
 const post = (data, endpoint) => {
   const options = {
     method: "POST",
     headers: { "content-type": "application/json" },
     data: JSON.stringify(data),
-    url: `http://localhost:3000${endpoint}`
+    url: `${port}${endpoint}`
   }
   return axios(options);
 }
 
 const get = (endpoint) => {
-  return axios.get(`http://localhost:3000${endpoint}`)
+  return axios.get(`${url}${endpoint}`)
 }
 
 const nodeServices = {

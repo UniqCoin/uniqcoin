@@ -5,10 +5,10 @@ const BalanceView = (props) => {
     return (
         <div>
             <Row>
-                <Label>Confirmed balance: {confirmedBalance}</Label>
+                <Label>Confirmed balance: {confirmedBalance} UC</Label>
             </Row>
             <Row>
-                <Label>Pending balance: {pendingBalance}</Label>
+                <Label>Pending balance: {pendingBalance} UC</Label>
             </Row>    
         </div>
     )

@@ -49,11 +49,12 @@ class Blockchain {
   }
 
   get cumulativeDifficulty() {
-    let cumulativeDiff = 0
-    this.blocks.forEach((block) => {
-      cumulativeDiff += 16 ** block.difficulty
-    })
-    return cumulativeDiff
+    return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
+    // let cumulativeDiff = 0
+    // this.blocks.forEach((block) => {
+    //   cumulativeDiff += 16 ** block.difficulty
+    // })
+    // return cumulativeDiff
   }
 
   addNewTransaction(transaction) {
@@ -68,22 +69,43 @@ class Blockchain {
       senderSignature,
     } = transaction
 
-    // TODO: add validations
     if (!Validation.isValidAddress(from)) {
       return { errorMsg: `Invalid sender address: ${from}` }
     }
     if (!Validation.isValidAddress(to)) {
       return { errorMsg: `Invalid receiver address: ${to}` }
     }
+    if (!Validation.isValidAmountTransfer(value)) {
+      return { errorMsg: `Invalid amount value: ${value}` }
+    }
+    if (!Validation.isValidFee(fee)) {
+      return { errorMsg: `Invalid transaction fee: ${fee}` }
+    }
+    if (!Validation.isValidDate(dateCreated)) {
+      return { errorMsg: `Date is invalid or must be an ISO string: ${dateCreated}` }
+    }
+    if (!Validation.isValidPublicAddress(senderPubKey)) {
+      return { errorMsg: `Invalid sender public key: ${senderPubKey}` }
+    }
+    if (!Validation.isValidSignature(senderSignature)) {
+      return { errorMsg: `Invalid transaction signature: ${senderSignature}` }
+    }
+    if (data && typeof data !== 'string') {
+      return { errorMsg: `Invalid data: ${data}` }
+    }
+    if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee) {
+      return { errorMsg: 'Insufficient balance' }
+    }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
       senderPubKey, senderSignature)
 
+    if (!newTransaction.verifySignature()) {
+      return { errorMsg: `Invalid signature: ${senderSignature}` }
+    }
     if (this.getTransactionByHash(newTransaction.transactionDataHash)) {
       return { errorMsg: `Duplicate transaction: ${newTransaction.transactionDataHash}` }
     }
-
-    // TODO: add more validations
 
     this.pendingTransactions.push(newTransaction)
     return newTransaction
@@ -183,6 +205,9 @@ class Blockchain {
 
   /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
+    // if (!Validation.isValidAddress(address)) {
+    //   return { errorMsg: `Invalid miner address: ${address}` }
+    // }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
     let pendingTransactions = JSON.parse(JSON.stringify(this.pendingTransactions))
@@ -228,7 +253,7 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
-      address
+      address,
     )
 
     this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
@@ -236,7 +261,9 @@ class Blockchain {
   }
 
   getTransactionsByAddress(address) {
-    // TODO: add validations
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid address: ${address}` }
+    }
     let transactions = this.getAllTransactions()
     transactions = transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
@@ -245,9 +272,12 @@ class Blockchain {
   }
 
   removePendingTransactions(transactions) {
-    for (const t of transactions) {
-      this.pendingTransactions = this.pendingTransactions.filter(item => item.transactionDataHash !== t.transactionDataHash)
-    }
+    const minedTransactionHashes = transactions.reduce((acc, cur) => {
+      acc.add(cur.transactionDataHash)
+      return acc
+    }, new Set())
+    this.pendingTransactions = this.pendingTransactions
+      .filter(tran => !minedTransactionHashes.has(tran.transactionDataHash))
   }
 
   submitMinedBlock(minedBlock) {
@@ -263,7 +293,7 @@ class Blockchain {
     block.blockHash = blockHash
     block.blockDataHash = blockDataHash
 
-    const isValid = this.isBlockValid(block)
+    const isValid = this.isMinedBlockValid(block)
     if (!isValid) return error
 
     this.blocks.push(block)
@@ -272,7 +302,7 @@ class Blockchain {
     return { message: `Block accepted, reward paid: ${block.transactions[0].value} microcoins` }
   }
 
-  isBlockValid(block) {
+  isMinedBlockValid(block) {
     const lastBlock = this.getLastBlock()
 
     return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
@@ -286,10 +316,6 @@ class Blockchain {
       .filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
   }
 
-  updatePendingTransactions() {
-
-  }
-
   removePendingTransaction(transaction) {
     const indexOfTransaction = this.pendingTransactions
       .findIndex(p => p.transactionDataHash === transaction.transactionDataHash)
@@ -299,6 +325,9 @@ class Blockchain {
   }
 
   getAccountBalanceByAddress(address) {
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid address: ${address}` }
+    }
     const transactions = this.getAccountBalanceByAddress(address)
     const balance = {
       safeBalance: 0,

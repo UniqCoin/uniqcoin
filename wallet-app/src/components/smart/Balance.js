@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Container } from 'reactstrap'
-import BalanceForm from '../dumb/forms/BalanceForm'
+import { Container, Row } from 'reactstrap'
 import BalanceView from '../dumb/BalanceView'
+import TransactionList from '../dumb/TransactionList'
 import nodeServices from '../../nodeServices.js'
 
 class Balance extends Component {
@@ -9,16 +9,16 @@ class Balance extends Component {
     super(props)
     this.state = {
       balances: {},
-      transactions: {},
-      address: null,
+      transactions: [],
     }
   }
 
   async componentDidMount() {
-    let { balances, transactions, address } = this.state
+    let { balances, transactions } = this.state
+    const wallet = JSON.parse(sessionStorage.getItem('wallet'))
     try {
-      balances = await nodeServices.getBalances('sdsd')
-      transactions = await nodeServices.getTransactions(address)
+      balances = await nodeServices.getBalances(wallet.address)
+      transactions = await nodeServices.getTransactions(wallet.address)
       this.setState({ balances, transactions })
     } catch (error) {
       console.log(error)
@@ -26,14 +26,23 @@ class Balance extends Component {
   }
 
   render() {
-    const { confirmedBalance, pendingBalance } = this.state.balances
+    const { balances, transactions } = this.state
+    const { confirmedBalance, pendingBalance } = balances
     return (
       <Container>
-        <BalanceForm />
-        <BalanceView
-          confirmedBalance={confirmedBalance}
-          pendingBalance={pendingBalance}
-        />
+        <h1>Account Balance</h1>
+        <Row>
+          <BalanceView
+            confirmedBalance={confirmedBalance}
+            pendingBalance={pendingBalance}
+          />
+        </Row>
+        <h3>Recent Activity</h3>
+        <Row>
+          <TransactionList
+            transactions={transactions}
+          />
+        </Row>
       </Container>
     )
   }

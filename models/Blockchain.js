@@ -159,7 +159,7 @@ class Blockchain {
     }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
-    let pendingTransactions = JSON.parse(JSON.stringify(this.getPendingTransactions()))
+    let pendingTransactions = JSON.parse(JSON.stringify(this.pendingTransactions))
       .sort((a, b) => a.fee - b.fee)
     /* create coinbase transaction and get confirmed transactions balances */
     const coinbaseTransaction = this.createCoinbaseTransaction(address)
@@ -207,10 +207,6 @@ class Blockchain {
 
     this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
     return nextBlockCandidate
-  }
-
-  getPendingTransactions() {
-    return this.pendingTransactions
   }
 
   getTransactionsByAddress(address) {

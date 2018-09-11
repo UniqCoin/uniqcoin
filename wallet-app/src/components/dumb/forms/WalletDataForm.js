@@ -1,8 +1,9 @@
 import React from 'react'
-import { Form, InputGroup, InputGroupAddon, InputGroupText, Input } from 'reactstrap';
+import { Form, InputGroup, InputGroupAddon, InputGroupText, Input,Row } from 'reactstrap';
 
 const WalletDataForm = (props) => (
   <Form>
+    <Row>
     <InputGroup>
       <InputGroupAddon addonType="prepend">
         <InputGroupText>Generated private key: </InputGroupText>
@@ -21,6 +22,7 @@ const WalletDataForm = (props) => (
       </InputGroupAddon>
       <Input name="address" id="address" value={props.address} disabled />
     </InputGroup>
+    </Row>
   </Form>
 )
 

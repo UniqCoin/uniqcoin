@@ -50,4 +50,5 @@ module.exports = {
   safeConfirmCount,
   endpoints,
   miningFee,
+  minerPort,
 }

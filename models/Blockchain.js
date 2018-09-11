@@ -73,7 +73,7 @@ class Blockchain {
       return { errorMsg: `Invalid sender address: ${from}` }
     }
     if (!Validation.isValidAddress(to)) {
-      return { errorMsg: `Invalid receiver address: ${from}` }
+      return { errorMsg: `Invalid receiver address: ${to}` }
     }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
@@ -228,7 +228,7 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
-      address,
+      address
     )
 
     this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate

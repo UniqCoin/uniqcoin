@@ -14,6 +14,7 @@ const coinbaseTxVal = 5000000
 const faucetAddress = 'notimplemented'
 const faucetTxVal = 1000000000000
 const safeConfirmCount = 6
+const minTransfer = 10
 
 const endpoints = [
   { method: 'GET', link: '/info', description: 'info desc' },
@@ -35,6 +36,8 @@ const endpoints = [
   { method: 'GET', link: '/mining/submit', description: 'mining submit desc' },
 ]
 
+const miningFee = 10
+
 module.exports = {
   port,
   minerPort,
@@ -44,8 +47,11 @@ module.exports = {
   nullSignature,
   genesisDate,
   coinbaseTxVal,
+  minTransfer,
   faucetAddress,
   faucetTxVal,
   safeConfirmCount,
   endpoints,
+  miningFee,
+  minerPort,
 }

@@ -3,6 +3,7 @@ import CryptoJS from 'crypto-js'
 import elliptic from 'elliptic'
 import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText, Button, Label, Input } from 'reactstrap'
 import { transactionFee } from '../../config.js'
+import nodeServices from '../../nodeServices';
 import Wallet from '../../models/Wallet'
 import SendTransactionForm from '../dumb/forms/SendTransactionForm'
 
@@ -16,11 +17,20 @@ class SendTransaction extends Component {
       signedTransaction: null,
       transactionHash: null,
       transactionData: {},
+      errorMsg: '',
     }
-    this.signTransaction = this.sendTransaction.bind(this)
+    this.signTransaction = this.signTransaction.bind(this)
     this.sendTransaction = this.sendTransaction.bind(this)
     this.renderSignedTransaction = this.renderSignedTransaction.bind(this)
     this.renderSentTransaction = this.renderSentTransaction.bind(this)
+    this.handleInputChange = this.handleInputChange.bind(this)
+  }
+
+  handleInputChange(evt) {
+    const { id, value } = evt.target
+    const { transactionData } = this.state
+    transactionData[id] = value
+    this.setState({ transactionData })
   }
 
   componentDidMount() {
@@ -45,7 +55,8 @@ class SendTransaction extends Component {
     const transactionJSON = JSON.stringify(transactionData)
     const transactionDataHash = CryptoJS.SHA256(transactionJSON).toString()
     const senderSignature = this.signData(transactionDataHash, wallet.privateKey)
-    const signedTransaction = Object.assign(transactionData, { transactionDataHash, senderSignature })
+    const dateCreated = new Date().toISOString()
+    const signedTransaction = Object.assign(transactionData, { transactionDataHash, senderSignature, dateCreated })
     this.setState({ signedTransaction })
   }
 
@@ -55,14 +66,18 @@ class SendTransaction extends Component {
     return [signature.r.toString(16), signature.s.toString(16)]
   }
 
-  sendTransaction() {
-
+  async sendTransaction() {
+    const { signedTransaction } = this.state
+    const response = await nodeServices.sendSignedTransaction(signedTransaction)
+    const { errorMsg } = response
+    if (errorMsg) this.setState({ errorMsg })
+    else this.setState({ transactionHash: response })
   }
 
   renderSignedTransaction(signedTransaction) {
     return (
       <Row>
-        <Input type="textarea" value={JSON.stringify(signedTransaction)} />
+        <Input type="textarea" value={JSON.stringify(signedTransaction)} readOnly/>
         <Button onClick={this.sendTransaction}>Send Transaction</Button>
       </Row>
     )
@@ -71,19 +86,21 @@ class SendTransaction extends Component {
   renderSentTransaction(transactionHash) {
     const value = `Transaction successfully sent!\nTransaction hash:\n${transactionHash}`
     return (
-      <Input type="textarea" value={value}/>
+      <Input type="textarea" value={value} readOnly/>
     )
   }
 
 	render() {
-    const { signedTransaction, transactionHash } = this.state
-		return(
+    const { signedTransaction, transactionHash, transactionData } = this.state
+		return (
 			<Container>
 				<Row>
 					<h1>Send Transaction</h1>
 				</Row>
 				<Row>
           <SendTransactionForm
+            handleInputChange={this.handleInputChange}
+            transactionData={transactionData}
           />
 				</Row>
         <Row>

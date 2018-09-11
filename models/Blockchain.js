@@ -19,6 +19,35 @@ class Blockchain {
     this.blocks.push(block)
   }
 
+  isValid() {
+    let isValid = true
+    let prevBlockHashRecalculated
+    for (let a = 0, blocksLen = this.blocks.length; a < blocksLen; a++) {
+      const blockData = this.blocks[a]
+      const {
+        blockDataHash, blockHash, prevBlockHash, difficulty,
+      } = blockData
+      const block = new Block(blockData.index, blockData.transactions,
+        blockData.difficulty, blockData.prevBlockHash, undefined, blockData.minedBy,
+        blockData.nonce, blockData.dateCreated, undefined)
+      const blockDataHashRecalculated = block.blockDataHash
+      const blockHashRecalculated = block.blockHash
+
+      if (prevBlockHash !== prevBlockHashRecalculated
+        || blockDataHash !== blockDataHashRecalculated
+        || blockHash !== blockHashRecalculated
+        || blockHashRecalculated.substring(0, difficulty) === Array(difficulty + 1).join('0')
+        || !block.isTransactionsValid()) {
+        isValid = false
+        break
+      }
+
+      prevBlockHashRecalculated = blockHashRecalculated
+    }
+
+    return isValid
+  }
+
   get cumulativeDifficulty() {
     let cumulativeDiff = 0
     this.blocks.forEach((block) => {

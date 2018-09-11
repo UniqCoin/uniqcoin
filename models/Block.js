@@ -1,4 +1,5 @@
 const CryptoJs = require('crypto-js')
+const Transaction = require('./Transaction')
 
 class Block {
   constructor(index, transactions, difficulty, prevBlockHash, blockDataHash,
@@ -21,6 +22,27 @@ class Block {
      *  Calculate blockhash when it's null or undefined
      */
     if (!this.blockHash) this.blockHash = this.calculateBlockHash()
+  }
+
+  isTransactionsValid() {
+    let isValid = true
+    for (let a = 0, txLen = this.transactions.length; a < txLen; a++) {
+      const txData = this.transactions[a]
+      const { transactionDataHash, minedInBlockIndex } = txData
+      const tx = new Transaction(txData.from, txData.to,
+        txData.value, txData.fee, txData.dateCreated,
+        txData.data, txData.senderPubKey, txData.senderSignature)
+      const txDataHashRecalculated = tx.transactionDataHash
+
+      if (transactionDataHash !== txDataHashRecalculated
+        || this.index !== minedInBlockIndex) {
+        // TODO transferSuccessful recalculation?
+        isValid = false
+        break
+      }
+    }
+
+    return isValid
   }
 
   /**

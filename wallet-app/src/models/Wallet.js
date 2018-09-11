@@ -64,6 +64,7 @@ class Wallet {
     const key = secp256k1.keyFromPrivate(privateKey)
     const generatedPubKey = key.getPublic()
     const { address, publicKey } = this.getCompressedPublicKeyAndAddress(generatedPubKey)
+    this.privateKey = privateKey
     this.setDataAddressAndPublicKey(address, publicKey)
   }
 

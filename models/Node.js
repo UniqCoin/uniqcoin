@@ -299,7 +299,11 @@ class Node {
       const peerInfo = response.data
       const { nodeId, chainId } = peerInfo
 
-      if (this.peers[nodeId]) {
+      if (this.nodeId === nodeId) {
+        res.status(409).send({
+          errorMsg: 'Cannot connect to own node',
+        })
+      } else if (this.peers[nodeId]) {
         res.status(409).send({
           errorMsg: `Already connected to ${peerUrl}`,
         })
@@ -315,6 +319,14 @@ class Node {
         }
 
         this.peers[nodeId] = peerUrl
+
+        try {
+          await axios.post(`${peerUrl}/peers/connect`, {
+            peerUrl: this.selfURL,
+          })
+        } catch (error) {
+          console.log(`Connected to peer ${this.selfURL}`)
+        }
 
         const syncFromPeerResult = await this.synchronizeFromPeer(peerInfo)
 

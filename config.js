@@ -1,4 +1,5 @@
 const port = 5555
+const minerPort = 6666
 const serverHost = 'http://localhost'
 
 const nullAddress = '0000000000000000000000000000000000000000'

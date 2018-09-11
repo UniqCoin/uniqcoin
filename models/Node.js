@@ -2,13 +2,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const axios = require('axios')
+const isUrl = require('is-url')
 const Blockchain = require('./Blockchain')
 const config = require('./../config')
 
 class Node {
   constructor(host, port, chain) {
     this.nodeId = (new Date()).getTime().toString(16) + Math.random().toString(16).substring(2)
-    this.selfURL = new URL(`${host}:${port}`).origin
+    this.selfURL = `http://${host}:${port}`
     this.host = host
     this.port = port
     this.peers = {}
@@ -230,12 +231,11 @@ class Node {
     })
 
     app.post('/peers/connect', async (req, res) => {
-      let peerUrl
-      try {
-        peerUrl = new URL(req.body.peerUrl)
-      } catch (error) {
+      if (!isUrl(req.body.peerUrl)) {
         res.status(500).send('Invalid Peer URL')
       }
+
+      const { peerUrl } = req.body.peerUrl
 
       let response
       try {

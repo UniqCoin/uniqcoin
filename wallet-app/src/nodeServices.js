@@ -9,7 +9,7 @@ const post = (data, endpoint) => {
     method: "POST",
     headers: { "content-type": "application/json" },
     data: JSON.stringify(data),
-    url: `${port}${endpoint}`
+    url: `${url}${endpoint}`
   }
   return axios(options);
 }
@@ -22,6 +22,12 @@ const nodeServices = {
   sendSignedTransaction: (transaction) => {
     return post(transaction, '/transaction/send')
   },
+  getBalances: (address) => {
+    return get(`/address/${address}/balance`)
+  },
+  getTransactions: (address) => {
+    return get(`/address/${address}/transactions`)
+  }
 
 }
 

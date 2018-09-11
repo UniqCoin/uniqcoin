@@ -5,8 +5,8 @@ const cluster = require('cluster')
 const os = require('os')
 
 class Miner {
-  constructor(nodeURL, address) {
-    this.nodeURL = new URL(nodeURL)
+  constructor(host, port, address) {
+    this.nodeURL = `${host}:${port}`
     this.address = address
     this.cpuCount = os.cpus().length
   }
@@ -16,7 +16,7 @@ class Miner {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       data: JSON.stringify(blockData),
-      url: `${this.nodeURL.origin}/mining/submit`,
+      url: `${this.nodeURL}/mining/submit`,
     }
 
     return axios(options)
@@ -27,11 +27,11 @@ class Miner {
   }
 
   getMiningJob() {
-    return axios.get(`${this.nodeURL.origin}/mining/get-mining-job/${this.address}`)
+    return axios.get(`${this.nodeURL}/mining/get-mining-job/${this.address}`)
   }
 
   getBlockByIndex(index) {
-    return axios.get(`${this.nodeURL.origin}/blocks/${index}`)
+    return axios.get(`${this.nodeURL}/blocks/${index}`)
   }
 
   async mineBlock() {

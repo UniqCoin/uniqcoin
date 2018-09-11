@@ -60,12 +60,7 @@ class Navigator extends Component {
               </NavItem>
               {wallet &&
                 <NavItem style={style.linkItem}>
-                  <Link to='/account' style={style.link}>Account</Link>
-                </NavItem>
-              }
-              {wallet &&
-                <NavItem style={style.linkItem}>
-                  <Link to='/balance' style={style.link}>Balance</Link>
+                  <Link to='/account-balance' style={style.link}>Account Balance</Link>
                 </NavItem>
               }
               {wallet &&
@@ -85,9 +80,6 @@ class Navigator extends Component {
                     </DropdownItem>
                     <DropdownItem>
                       <Link to='/open-existing-wallet' style={style.link}>Open Wallet</Link>
-                    </DropdownItem>
-                    <DropdownItem>
-                      <Link to='/recover-wallet' style={style.link}>Recover Wallet</Link>
                     </DropdownItem>
                     <DropdownItem>
                       <Link to='/export-wallet' style={style.link}>Export Wallet</Link>

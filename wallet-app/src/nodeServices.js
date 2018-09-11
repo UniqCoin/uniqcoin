@@ -2,12 +2,12 @@ import axios from 'axios'
 
 import { nodeServerHost, nodePort } from './config'
 
-const url = `${nodeServerHost}:${nodePort}`
+const url = `http://${nodeServerHost}:${nodePort}`
 
-const post = (data, endpoint) => {
+const post = async (data, endpoint) => {
   const options = {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
     data: JSON.stringify(data),
     url: `${url}${endpoint}`
   }
@@ -28,7 +28,6 @@ const nodeServices = {
   getTransactions: (address) => {
     return get(`/address/${address}/transactions`)
   }
-
 }
 
 export default nodeServices

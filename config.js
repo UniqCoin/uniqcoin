@@ -1,4 +1,5 @@
 const port = 5555
+const minerPort = 6666
 const serverHost = 'http://localhost'
 
 const nullAddress = '0000000000000000000000000000000000000000'
@@ -39,6 +40,7 @@ const miningFee = 10
 
 module.exports = {
   port,
+  minerPort,
   serverHost,
   nullAddress,
   nullPubKey,
@@ -51,4 +53,5 @@ module.exports = {
   safeConfirmCount,
   endpoints,
   miningFee,
+  minerPort,
 }

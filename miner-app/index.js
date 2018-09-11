@@ -1,4 +1,5 @@
 const Miner = require('./models/Miner')
+const config = require('./../config')
 
-const miner = new Miner('http://127.0.0.1:5555/', 'qwerty')
+const miner = new Miner(config.serverHost, config.minerPort, 'qwerty')
 miner.mineIndefinitely()

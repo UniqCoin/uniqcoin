@@ -37,6 +37,7 @@ const endpoints = [
 
 module.exports = {
   port,
+  minerPort,
   serverHost,
   nullAddress,
   nullPubKey,

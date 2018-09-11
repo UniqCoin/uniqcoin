@@ -40,6 +40,7 @@ const miningFee = 10
 
 module.exports = {
   port,
+  minerPort,
   serverHost,
   nullAddress,
   nullPubKey,

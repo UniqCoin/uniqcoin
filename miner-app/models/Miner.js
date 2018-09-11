@@ -6,7 +6,7 @@ const os = require('os')
 
 class Miner {
   constructor(host, port, address) {
-    this.nodeURL = `http://${host}:${port}`
+    this.nodeURL = `${host}:${port}`
     this.address = address
     this.cpuCount = os.cpus().length
   }

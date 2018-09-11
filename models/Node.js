@@ -9,7 +9,7 @@ const config = require('./../config')
 class Node {
   constructor(host, port, chain) {
     this.nodeId = (new Date()).getTime().toString(16) + Math.random().toString(16).substring(2)
-    this.selfURL = `http://${host}:${port}`
+    this.selfURL = `${host}:${port}`
     this.host = host
     this.port = port
     this.peers = {}
@@ -43,9 +43,15 @@ class Node {
     }
   }
 
-  isValidPeerBlockchain(peerBlockchain) {
-    // TODO
-  }
+  // isValidPeerBlockchain(peerBlockchain) {
+  //   const currentGenesisBlockHash = this.chain.blocks[0].calculateBlockHash()
+  //   console.log('peer block chain', peerBlockchain)
+  //   const peerGenesisBlockHash = peerBlockchain.blocks[0].calculateBlockHash()
+  //   console.log(peerGenesisBlockHash)
+  //   if (true) {
+  //     throw new Error('Invalid genesis')
+  //   }
+  // }
 
   async synchronizeFromPeer(peerInfo) {
     const peerCumulativeDifficulty = peerInfo.cumulativeDifficulty
@@ -67,7 +73,7 @@ class Node {
       const response = await axios.get(`${peerUrl}/blocks`)
       peerBlockchain = response.data
     } catch (error) {
-      console.log('error', error.response)
+      console.log('Unable to fetch peer blockchain')
     }
 
     // TODO peer blockchain validation
@@ -162,6 +168,7 @@ class Node {
     })
 
     app.get('/info', (req, res) => {
+      console.log(this.info)
       res.json(this.info)
     })
 
@@ -235,13 +242,13 @@ class Node {
         res.status(500).send('Invalid Peer URL')
       }
 
-      const { peerUrl } = req.body.peerUrl
+      const { peerUrl } = req.body
 
       let response
       try {
-        response = await axios.get(`${peerUrl.origin}/info`)
+        response = await axios.get(`${peerUrl}/info`)
       } catch (error) {
-        res.status(500).send(`Could not connect to ${peerUrl.origin}`)
+        res.status(500).send(`Could not connect to ${peerUrl}`)
       }
 
       const peerInfo = response.data
@@ -249,25 +256,25 @@ class Node {
 
       if (this.peers[nodeId]) {
         res.status(409).send({
-          errorMsg: `Already connected to ${peerUrl.origin}`,
+          errorMsg: `Already connected to ${peerUrl}`,
         })
       } else if (this.chainId !== chainId) {
         res.status(400).send({
-          errorMsg: `Node chain ID does not match to ${peerUrl.origin} chain ID`,
+          errorMsg: `Node chain ID does not match to ${peerUrl} chain ID`,
         })
       } else {
         for (const prop in this.peers) {
-          if (this.peers[prop] === peerUrl.origin) {
+          if (this.peers[prop] === peerUrl) {
             delete this.peers[prop]
           }
         }
 
-        this.peers[nodeId] = peerUrl.origin
+        this.peers[nodeId] = peerUrl
 
         await this.synchronizeFromPeer(peerInfo)
 
         res.status(200).send({
-          message: `Connected to peer ${peerUrl.origin}`,
+          message: `Connected to peer ${peerUrl}`,
         })
       }
     })

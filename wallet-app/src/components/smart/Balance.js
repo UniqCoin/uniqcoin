@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { Input, Label, Button, Container } from 'reactstrap'
+import { Container } from 'reactstrap'
+import BalanceForm from '../dumb/forms/BalanceForm'
+import BalanceView from '../dumb/BalanceView'
+import nodeServices from '../../nodeServices.js'
 
 class Balance extends Component {
   constructor(props) {
@@ -12,20 +15,25 @@ class Balance extends Component {
   }
 
   async componentDidMount() {
-    let { balances, transactions } = this.state
-    
+    let { balances, transactions, address } = this.state
+    try {
+      balances = await nodeServices.getBalances('sdsd')
+      transactions = await nodeServices.getTransactions(address)
+      this.setState({ balances, transactions })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   render() {
+    const { confirmedBalance, pendingBalance } = this.state.balances
     return (
       <Container>
-        <h3>View Account Balance</h3>
-        <Label>Address</Label>
-        <Input type="text"></Input>
-        <Button style={{ marginTop: 10}}>Display</Button>
-        <div>
-            
-        </div>
+        <BalanceForm />
+        <BalanceView
+          confirmedBalance={confirmedBalance}
+          pendingBalance={pendingBalance}
+        />
       </Container>
     )
   }

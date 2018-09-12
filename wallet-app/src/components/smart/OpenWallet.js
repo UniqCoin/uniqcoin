@@ -7,12 +7,8 @@ import { BrowserRouter as Router, Route, Link, withRouter } from "react-router-d
 
 const styles = {
   container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirect: 'column',
-    
     height: '100%',
+    paddingTop: '10%'
   }
 }
 
@@ -28,10 +24,14 @@ class OpenWallet extends Component {
     this.setState({ privateKey: val })
   }
 
+  setSessionItem(field, item) {
+    sessionStorage.setItem(field, item)
+  }
+
   openWallet() {
     if (this.state.privateKey.length === 64) {
       const wallet = new Wallet(this.state.privateKey)
-      sessionStorage.setItem('wallet', JSON.stringify(wallet))
+      this.setSessionItem('wallet', JSON.stringify(wallet))
       this.setState({ wallet, recovered: true })
       this.props.history.push('/')
     }
@@ -41,20 +41,14 @@ class OpenWallet extends Component {
     return (
       <div style={styles.container}>
         <Container>
+          <div style={{flex: 'display', justifyContent: 'center', alignItems: 'center'}}>
+            <h3>Enter your private key here </h3>
+          </div>
           <OpenWalletForm
             privateKey={this.state.privateKey}
             openWallet={this.openWallet}
             changeKey={this.changeKey}
           />
-          <div style={{ paddingTop: '8px' }}>
-            {this.state.recovered &&
-              < WalletDataForm
-                privateKey={this.state.wallet.privateKey}
-                publicKey={this.state.wallet.publicKey}
-                address={this.state.wallet.address}
-              />
-            }
-          </div>
         </Container>
       </div>
     )

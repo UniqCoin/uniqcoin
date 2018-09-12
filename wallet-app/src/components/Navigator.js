@@ -26,7 +26,7 @@ const style = {
     padding: '5px',
   },
   icon: {
-    marginLeft: '8px'
+    marginRight: '5px'
   }
 }
 
@@ -64,6 +64,7 @@ class Navigator extends Component {
                 <Link to='/' style={style.link}>
                   <FontAwesomeIcon
                     icon='home'
+                    style={style.icon}
                   />
                   HOME
                 </Link>
@@ -71,19 +72,21 @@ class Navigator extends Component {
               {wallet &&
                 <NavItem style={style.linkItem}>
                   <Link to='/account-balance' style={style.link}>
-                  <FontAwesomeIcon
-                    icon='money-check'
-                  />
-                  Account Balance</Link>
+                    <FontAwesomeIcon
+                      icon='money-check'
+                      style={style.icon}
+                    />
+                    Account Balance</Link>
                 </NavItem>
               }
               {wallet &&
                 <NavItem style={style.linkItem}>
                   <Link to='/send-transaction' style={style.link}>
-                  <FontAwesomeIcon
-                    icon='paper-plane'
-                  />
-                  Send Transaction</Link>
+                    <FontAwesomeIcon
+                      icon='paper-plane'
+                      style={style.icon}
+                    />
+                    Send Transaction</Link>
                 </NavItem>
               }
               {
@@ -92,6 +95,7 @@ class Navigator extends Component {
                   <DropdownToggle style={style.dropdownItem} nav caret>
                     <FontAwesomeIcon
                       icon='wallet'
+                      style={style.icon}
                     />
                     Wallet
                   </DropdownToggle>
@@ -100,22 +104,25 @@ class Navigator extends Component {
                       <Link to='/create-wallet' style={style.link}>
                         <FontAwesomeIcon
                           icon='plus'
+                          style={style.icon}
                         />
-                         Create New Wallet</Link>
+                        Create New Wallet</Link>
                     </DropdownItem>
                     <DropdownItem>
                       <Link to='/open-existing-wallet' style={style.link}>
-                      <FontAwesomeIcon
+                        <FontAwesomeIcon
                           icon='folder-open'
+                          style={style.icon}
                         />
-                      Open Wallet</Link>
+                        Open Wallet</Link>
                     </DropdownItem>
                     <DropdownItem>
                       <Link to='/export-wallet' style={style.link}>
-                      <FontAwesomeIcon
+                        <FontAwesomeIcon
+                          style={style.icon}
                           icon='file-export'
                         />
-                      Export Wallet</Link>
+                        Export Wallet</Link>
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
@@ -123,10 +130,11 @@ class Navigator extends Component {
 
               <NavItem style={style.linkItem}>
                 {wallet && <Link to='/' style={style.link} onClick={() => window.sessionStorage.clear()}>
-                <FontAwesomeIcon
-                          icon='sign-out-alt'
-                        />
-                 Logout</Link>}
+                  <FontAwesomeIcon
+                    icon='sign-out-alt'
+                    style={style.icon}
+                  />
+                  Logout</Link>}
               </NavItem>
             </Nav>
           </Collapse>

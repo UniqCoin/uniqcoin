@@ -32,33 +32,14 @@ class Transaction {
     this.transactionDataHash = CryptoJS.SHA256(transactionDataJSON).toString()
   }
 
-  sign(privateKey) {
-    this.senderSignature = signData(this.transactionHash, privateKey)
+  verifySignature() {
+    const { transactionDataHash, senderPubKey, senderSignature } = this
+    const x = senderPubKey.substring(0, 64)
+    const y = parseInt(senderPubKey.substring(64), 10)
+    const pubKeyPt = secp256k1.curve.pointFromX(x, y)
+    const keyPair = secp256k1.keyPair({ pub: pubKeyPt })
+    return keyPair.verify(transactionDataHash, { r: senderSignature[0], s: senderSignature[1] })
   }
-
-  // verify() {
-  //   this.transactionSuccessful = verifySignature(this.transactionHash, this.senderPubKey, this.senderSignature)
-  // }
 }
 
-// TODO: move this function somewhere else
-function signData(data, privKey) {
-  const keyPair = secp256k1.keyFromPrivate(privKey)
-  const signature = keyPair.sign(data)
-  return [signature.r.toString(16), signature.s.toString(16)]
-}
-
-// function decompressPublicKey(pubKeyCompressed) {
-//   const pubKeyX = pubKeyCompressed.substring(0, 64)
-//   const pubKeyYOdd = parseInt(pubKeyCompressed.substring(64))
-//   const pubKeyPoint = secp256k1.curve.pointFromX(pubKeyX, pubKeyYOdd)
-//   return pubKeyPoint
-// }
-
-// function verifySignature(data, publicKey, signature) {
-//   const pubKeyPoint = decompressPublicKey(publicKey)
-//   const keyPair = secp256k1.keyPair({ pub: pubKeyPoint })
-//   const result = keyPair.verify(data, { r: signature[0], s: signature[1] })
-//   return result
-// }
 module.exports = Transaction

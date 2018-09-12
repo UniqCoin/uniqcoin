@@ -199,7 +199,7 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
-      address
+      address,
     )
 
     this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate

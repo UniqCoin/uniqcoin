@@ -101,4 +101,90 @@ describe('Blockchain unit test: ', () => {
 
     })
   })
+
+  describe('getAllTransactions', () => {
+    const timeStamp = new Date().toISOString()
+
+    it('should get the list of all the transactions', () => {
+      clearPendingTransactions()
+      const transaction = new Transaction(wallet1.address, wallet2.address, 0.3, 0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+      blockChain.addNewTransaction(transaction)
+      const transactionDataHash = CryptoJS.SHA256(JSON.stringify({
+        from: transaction.from,
+        to: transaction.to,
+        value: transaction.value,
+        fee: transaction.fee,
+        dateCreated: transaction.dateCreated,
+        data: transaction.data,
+        senderPubKey: transaction.senderPubKey,
+      })).toString()
+      transaction.transactionDataHash = transactionDataHash
+      const transactions = blockChain.getAllTransactions()
+      assert.equal(JSON.stringify(transactions),
+        JSON.stringify([blockChain.genesisBlock.transactions[0], transaction]))
+    })
+  })
+
+  describe('getConfirmedTransactions', () => {
+    const timeStamp = new Date().toISOString()
+    it('should get the list of confirmed transactions', () => {
+      const transactions = []
+      blockChain.blocks.forEach((block) => {
+        transactions.push(...block.transactions)
+      })
+      assert.equal(JSON.stringify(transactions),
+        JSON.stringify(blockChain.getAllTransactions()))
+    })
+    it('should not include the pending transactions', () => {
+      clearPendingTransactions()
+      const transaction = new Transaction(wallet1.address, wallet2.address, 0.3,
+        0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+      blockChain.addNewTransaction(transaction)
+      const transactionDataHash = CryptoJS.SHA256(JSON.stringify({
+        from: transaction.from,
+        to: transaction.to,
+        value: transaction.value,
+        fee: transaction.fee,
+        dateCreated: transaction.dateCreated,
+        data: transaction.data,
+        senderPubKey: transaction.senderPubKey,
+      })).toString()
+      transaction.transactionDataHash = transactionDataHash
+      assert.notEqual(JSON.stringify(blockChain.getConfirmedTransactions()), JSON.stringify([blockChain.genesisBlock.transactions[0], transaction]))
+    })
+  })
+
+  describe('getTransactionByHash', () => {
+    it('should return the transaction by hash', () => {
+      const transaction = blockChain.getConfirmedTransactions()[0]
+      assert.equal(blockChain.getTransactionByHash(transaction.transactionDataHash), transaction)
+    })
+  })
+
+  describe('getLastBlockIndex', () => {
+    it('should return the index of the last block of the chain', () => {
+      const block = new Block(1, [], 1, '', '', '', 5, new Date(), '')
+      blockChain.addNewBlock(block)
+      assert.equal(blockChain.getLastBlockIndex(), block.index)
+    })
+  })
+
+  describe('getLastBlock', () => {
+    const block = new Block(3, [], 2, '', '', '', 2, new Date(), '')
+    const lastBlock = new Block(1, [], 1, '', '', '', 5, new Date(), '')
+    it('should return the last block of the chain', () => {
+      blockChain.addNewBlock(block)
+      blockChain.addNewBlock(lastBlock)
+      assert.equal(blockChain.getLastBlock(), lastBlock)
+    })
+    it('should not return the previous block of the chain', () => {
+      blockChain.addNewBlock(block)
+      blockChain.addNewBlock(lastBlock)
+      assert.notEqual(blockChain.getLastBlock(), block)
+    })
+  })
+
+  describe('getMiningJob', () => {
+
+  })
 })

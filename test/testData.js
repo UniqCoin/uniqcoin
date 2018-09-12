@@ -1,4 +1,4 @@
-const Wallet = require('../models/Wallet')
+const Wallet = require('../wallet-app/src/models/Wallet')
 
 const wallet1 = new Wallet()
 const wallet2 = new Wallet()

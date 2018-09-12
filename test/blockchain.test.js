@@ -187,4 +187,40 @@ describe('Blockchain unit test: ', () => {
   describe('getMiningJob', () => {
 
   })
+
+  describe('getTransactionsByAddress', () => {
+    const timeStamp = new Date().toISOString()
+    const transaction1 = new Transaction(wallet1.address, wallet2.address, 0.3,
+      0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+    const transaction2 = new Transaction(wallet2.address, wallet1.address, 0.1,
+      0.0002, timeStamp, wallet2.publicKey, sampleSignature)
+    const transaction3 = new Transaction(wallet1.address, '', 0.2,
+      0.0003, timeStamp, wallet1.publicKey, sampleSignature)
+
+    it('should return the list of transactions by address', () => {
+      clearPendingTransactions()
+      blockChain.addNewTransaction(transaction1)
+      blockChain.addNewTransaction(transaction2)
+      blockChain.addNewTransaction(transaction3)
+      assert.equal(JSON.stringify(blockChain.getTransactionsByAddress(wallet2.address)), JSON.stringify([transaction1, transaction2]))
+    })
+    it('should not include transactions with no matching address', () => {
+      clearPendingTransactions()
+      blockChain.addNewTransaction(transaction1)
+      blockChain.addNewTransaction(transaction2)
+      blockChain.addNewTransaction(transaction3)
+      assert.notEqual(JSON.stringify(blockChain.getTransactionsByAddress(wallet2.address)), JSON.stringify([transaction1, transaction2, transaction3]))
+    })
+  })
+
+  describe('submitMinedBlock', () => {
+    const block = new Block(1, [], 1, '', '', '', 5, new Date(), '')
+    it('should return a message that the block is accepted and reward is paid', () => {
+
+    })
+
+    it('should return an error message that the block is not found or has already mined', () => {
+
+    })
+  })
 })

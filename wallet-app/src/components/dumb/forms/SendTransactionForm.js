@@ -15,11 +15,11 @@ const SendTransactionForm = (props) => {
       </FormGroup>
       <FormGroup>
         <Label for="transaction value">Value</Label>
-        <Input type="text" value={value} onChange={props.handleInputChange} id="value"/>
+        <Input type="number" value={value} onChange={props.handleInputChange} id="value"/>
       </FormGroup>
       <FormGroup>
         <Label for="data">Data</Label>
-        <Input type="text" value={data} onChange={props.handleInputChange} id="data" placeholder="Optional"/>
+        <Input type="text" value={!data ? '' : data} onChange={props.handleInputChange} id="data" placeholder="Optional"/>
       </FormGroup>
     </Form>
   )

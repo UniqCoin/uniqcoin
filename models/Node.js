@@ -262,18 +262,18 @@ class Node {
       const result = this.chain.getTransactionsByAddress(address)
       const { errorMsg } = result
       if (errorMsg) res.status(404).send(errorMsg)
-      res.json(result)
+      res.json({ address, transactions: result })
     })
 
     app.get('/address/:address/balance', (req, res) => {
       // TODO
     })
 
-    app.post('/transaction/send', (req, res) => {
+    app.post('/transaction/send', (req, res, next) => {
       const result = this.chain.addNewTransaction(req.body)
       const { errorMsg } = result
       if (errorMsg) {
-        res.status(404).send(errorMsg)
+        res.status(400).send({ message: errorMsg })
       }
       res.json(result.transactionDataHash)
     })

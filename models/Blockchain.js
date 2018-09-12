@@ -268,7 +268,7 @@ class Blockchain {
     transactions = transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
-    return { address, transactions }
+    return transactions
   }
 
   removePendingTransactions(transactions) {

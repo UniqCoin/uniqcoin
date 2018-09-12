@@ -269,7 +269,7 @@ class Node {
       // TODO
     })
 
-    app.post('/transaction/send', (req, res, next) => {
+    app.post('/transactions/send', (req, res, next) => {
       const result = this.chain.addNewTransaction(req.body)
       const { errorMsg } = result
       if (errorMsg) {
@@ -363,6 +363,14 @@ class Node {
       const minedBlock = req.body
       const result = this.chain.submitMinedBlock(minedBlock)
       res.send(result)
+    })
+
+    app.get('/debug/mine/:minerAddress/:difficulty', (req, res) => {
+      const { minerAddress, difficulty } = req.params
+      const response = this.chain.mineNewBlock(minerAddress, difficulty)
+      const { errorMsg } = response
+      if (errorMsg) res.status(500).send({ message: errorMsg })
+      return res.send(response)
     })
 
     app.listen(this.port, () => console.log(`Listening http on port ${this.port}`))

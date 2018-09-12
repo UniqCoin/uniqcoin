@@ -22,6 +22,12 @@ const nodeServices = {
   sendSignedTransaction: (transaction) => {
     return post(transaction, '/transaction/send')
   },
+  getBalances: (address) => {
+    return get(`/address/${address}/balance`)
+  },
+  getTransactions: (address) => {
+    return get(`/address/${address}/transactions`)
+  }
 }
 
 export default nodeServices

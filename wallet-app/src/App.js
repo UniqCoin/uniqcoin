@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import Navigator from './components/Navigator'
 import Home from './components/smart/Home'
 import AccountBalance from './components/smart/AccountBalance'
-import Balance from './components/smart/Balance'
 import SendTransaction from './components/smart/SendTransaction'
 import CreateWallet from './components/smart/WalletCreation'
 import OpenWallet from './components/smart/OpenWallet'
@@ -41,7 +40,6 @@ class App extends Component {
               <Route exact path='/' component={Home} />
               <ModifiedRoute path='/open-existing-wallet' component={OpenWallet} />
               <PrivateRoute path='/account-balance' component={AccountBalance} />
-              <PrivateRoute path='/balance' component={Balance} />
               <PrivateRoute path='/send-transaction' component={SendTransaction} />
               <ModifiedRoute path='/create-wallet' component={CreateWallet} />
             </Switch>

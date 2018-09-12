@@ -20,7 +20,18 @@ const Validator = {
     }
     return false
   },
-  isInteger: digit => Number.isInteger(digit),
+  isValidFee: fee => Validator.isInteger(fee) && fee >= config.miningFee,
+  isValidTransferVal: val => Validator.isInteger(val) && val > 0,
+  isValidDate: (date) => {
+    const isoDateRegex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$/
+    return isoDateRegex.test(date) && date.getUTCFullYear() >= 2018
+  },
+  isValidSignature: (signature) => {
+    const regex = /^[0-9a-f]{65}$/
+    return Array.isArray(signature) && signature.length === 2
+      && regex.test(signature[0]) && regex.test(signature[1])
+  },
+  isInteger: digit => typeof digit === 'number' && Number.isInteger(digit),
 }
 
 module.exports = Validator

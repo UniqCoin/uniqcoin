@@ -12,7 +12,21 @@ import OpenWallet from './components/smart/OpenWallet'
 
 import PrivateRoute from './components/ProtectedRoute'
 import ModifiedRoute from './components/ModifiedRoute'
+import { library, icon } from '@fortawesome/fontawesome-svg-core'
+import { faSignOutAlt,faHome, faWallet, faPlus, faFolderOpen, faFileExport, faMoneyCheck, faPaperPlane, faSign} from '@fortawesome/free-solid-svg-icons'
 
+const icons = [
+  faHome,
+  faWallet,
+  faPlus,
+  faFolderOpen,
+  faFileExport,
+  faMoneyCheck,
+  faPaperPlane,
+  faSignOutAlt
+]
+
+icons.forEach(icon => library.add(icon))
 
 class App extends Component {
 
@@ -20,7 +34,7 @@ class App extends Component {
     const wallet = window.sessionStorage.getItem('wallet')
     return (
       <Router>
-        <div>
+        <div style={{backgroundColor:'#FAFAFA'}}>
           <Navigator />
           <div style={{ height: '98vh'}}>
             <Switch>

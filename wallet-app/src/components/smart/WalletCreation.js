@@ -4,6 +4,7 @@ import Wallet from '../../models/Wallet'
 import { withRouter } from "react-router-dom";
 import WalletDataForm from '../dumb/forms/WalletDataForm'
 
+
 const styles = {
   notificationAlert: {
     padding: '8px'
@@ -15,7 +16,9 @@ class CreateWallet extends Component {
     this.state = {
       wallet: null,
       generated: false,
+      copied: false,
     }
+    this.copy = this.copy.bind(this)
   }
 
   generateWallet() {
@@ -26,6 +29,10 @@ class CreateWallet extends Component {
 
   navigateToHome() {
     this.props.history.push('/')
+  }
+
+  copy() {
+    this.setState({copied: true});
   }
 
   renderNotification() {
@@ -80,6 +87,8 @@ class CreateWallet extends Component {
               privateKey={wallet.privateKey}
               publicKey={wallet.publicKey}
               address={wallet.address}
+              copy={this.copy}
+              copied={this.state.copied}
             /> : null
         }
         {this.state.generated &&

@@ -12,7 +12,7 @@ import OpenWallet from './components/smart/OpenWallet'
 import PrivateRoute from './components/ProtectedRoute'
 import ModifiedRoute from './components/ModifiedRoute'
 import { library, icon } from '@fortawesome/fontawesome-svg-core'
-import { faSignOutAlt,faHome, faWallet, faPlus, faFolderOpen, faFileExport, faMoneyCheck, faPaperPlane, faSign} from '@fortawesome/free-solid-svg-icons'
+import { faCopy,faSignOutAlt,faHome, faWallet, faPlus, faFolderOpen, faFileExport, faMoneyCheck, faPaperPlane, faSign} from '@fortawesome/free-solid-svg-icons'
 
 const icons = [
   faHome,
@@ -22,7 +22,8 @@ const icons = [
   faFileExport,
   faMoneyCheck,
   faPaperPlane,
-  faSignOutAlt
+  faSignOutAlt,
+  faCopy
 ]
 
 icons.forEach(icon => library.add(icon))

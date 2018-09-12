@@ -30,15 +30,15 @@ class AccountBalance extends Component {
     const { confirmedBalance, pendingBalance } = balances
     return (
       <Container>
-        <h1>Account Balance</h1>
+        <div style={{paddingTop: '5%'}}>
           <BalanceView
             confirmedBalance={confirmedBalance}
             pendingBalance={pendingBalance}
           />
-        <h3>Recent Activity</h3>
-          <TransactionList
-            transactions={transactions}
-          />
+        </div>
+        <TransactionList
+          transactions={transactions}
+        />
       </Container>
     )
   }

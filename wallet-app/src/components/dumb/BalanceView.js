@@ -1,17 +1,44 @@
 import React from 'react'
-import { Label, Row } from 'reactstrap'
+import { Label } from 'reactstrap'
+import { Card, Button, CardTitle, CardBody, CardText, Row, Col } from 'reactstrap';
+
 const BalanceView = (props) => {
-    const { confirmedBalance, pendingBalance } = props
-    return (
-        <div>
+  const { confirmedBalance, pendingBalance } = props
+  return (
+    <Card>
+      <CardBody style={{ backgroundColor: '#E0E0E0'}}>
+        <CardTitle>Account Balance</CardTitle>
+      </CardBody>
+      <CardBody>
+        <Row>
+          <Col>
             <Row>
-                <Label>Confirmed balance: {confirmedBalance} UC</Label>
+              <Col>
+                Confirmed Balance:
+                        </Col>
+              <Col>
+                <h6>
+                  {confirmedBalance || 0} UC
+                </h6>
+              </Col>
             </Row>
+          </Col>
+          <Col>
             <Row>
-                <Label>Pending balance: {pendingBalance} UC</Label>
-            </Row>    
-        </div>
-    )
+              <Col>
+                Pending Balance:
+              </Col>
+              <Col>
+                <h6>
+                  {pendingBalance || 0} UC
+                </h6>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </CardBody>
+    </Card>
+  )
 }
 
 export default BalanceView

@@ -5,7 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 const styles = {
-  p: { wordWrap: 'break-word' },
+  p: {
+    wordWrap: 'break-word'
+  },
   clip: {
     height: '2px',
     backgroundColor: 'green',
@@ -30,13 +32,13 @@ const WalletDataForm = (props) => (
     </Row>
     <Row>
       <Col xs='auto'>
-        <h6>Privakey Address: </h6>
+        <h6>Private key: </h6>
       </Col>
       <Col>
         <p style={styles.p}>
           {props.privateKey}
           {!props.copied ?
-            <CopyToClipboard text={props.privateKey} onCopy={() => props.copy()}>
+            <CopyToClipboard text={props.privateKey} onCopy={props.copy}>
               <FontAwesomeIcon
                 icon='copy'
                 style={{
@@ -45,9 +47,9 @@ const WalletDataForm = (props) => (
                 }}
               />
             </CopyToClipboard> :
-            <CopyToClipboard text={props.privateKey} onCopy={() => props.copy()}>
+            <CopyToClipboard text={props.privateKey} onCopy={props.copy}>
               <span style={styles.clip}>copied</span>
-          </CopyToClipboard>
+            </CopyToClipboard>
           }
         </p>
       </Col>

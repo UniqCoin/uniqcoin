@@ -30,31 +30,48 @@ class CreateWallet extends Component {
 
   renderNotification() {
     return (
-      <div style={styles.notificationAlert}>
+      <div>
         <Alert color="warning">
           <h4>Warning!</h4>
-          <p> Please save your private key in a safeplace. </p>
+          <p> Make sure you save your private key in a safeplace. </p>
           <hr />
           <h6>Note!</h6>
           <p>
             Private key cannot be restored!.
-					  <Button color='link' onClick={() => this.navigateToHome()}> Click here if you have save it! </Button>
+
+					  <Button color='link' onClick={() => this.navigateToHome()}>
+              Click here to redirect to your wallet
+            </Button>
+            <p>
+
+            </p>
           </p>
         </Alert>
       </div>
     )
   }
 
+  renderGeneratedMessage() {
+    if (!this.state.generated) {
+      return (<h2>Create new Wallet</h2>)
+    }
+    return (<h2>Generated Wallet</h2>)
+  }
+
   render() {
     const { wallet } = this.state
     return (
-      <Container>
+      <Container style={{ paddingTop: '2%', wordWrap: 'break-world' }}>
         <Row>
-          <h1>Create new Wallet</h1>
+          <Col>
+            {this.renderGeneratedMessage()}
+          </Col>
         </Row>
         {!this.state.generated &&
           <Row>
-            <Button onClick={this.generateWallet.bind(this)}>Generate Wallet</Button>
+            <Col>
+              <Button onClick={this.generateWallet.bind(this)}>Generate Wallet</Button>
+            </Col>
           </Row>
         }
         {
@@ -66,8 +83,8 @@ class CreateWallet extends Component {
             /> : null
         }
         {this.state.generated &&
-					this.renderNotification()
-				}
+          this.renderNotification()
+        }
       </Container>
     )
   }

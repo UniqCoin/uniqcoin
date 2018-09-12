@@ -49,12 +49,11 @@ class Blockchain {
   }
 
   get cumulativeDifficulty() {
-    return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
-    // let cumulativeDiff = 0
-    // this.blocks.forEach((block) => {
-    //   cumulativeDiff += 16 ** block.difficulty
-    // })
-    // return cumulativeDiff
+    // return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
+    return this.blocks.reduce((acc, cur) => {
+      acc += 16 ** cur.difficulty
+      return acc
+    }, 0)
   }
 
   addNewTransaction(transaction) {
@@ -68,6 +67,8 @@ class Blockchain {
       senderPubKey,
       senderSignature,
     } = transaction
+
+    const validKeys = new Set(['from', 'to', 'value', 'fee', 'dateCreated', 'sender', 'senderPubKey', 'senderSignature', 'transactionDataHash'])
 
     if (!Validation.isValidAddress(from)) {
       return { errorMsg: `Invalid sender address: ${from}` }
@@ -91,10 +92,16 @@ class Blockchain {
       return { errorMsg: `Invalid transaction signature: ${senderSignature}` }
     }
     if (data && typeof data !== 'string') {
+      validKeys.push('data')
       return { errorMsg: `Invalid data: ${data}` }
     }
     if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee) {
       return { errorMsg: 'Insufficient balance' }
+    }
+
+    const invalidKeys = new Set([...Object.keys(transaction)].filter(x => !validKeys.has(x)))
+    if (invalidKeys.size > 0) {
+      return { errorMsg: `Invalid transaction data: ${transaction}` }
     }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
@@ -205,9 +212,9 @@ class Blockchain {
 
   /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
-    // if (!Validation.isValidAddress(address)) {
-    //   return { errorMsg: `Invalid miner address: ${address}` }
-    // }
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid miner address: ${address}` }
+    }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
     let pendingTransactions = JSON.parse(JSON.stringify(this.pendingTransactions))
@@ -264,8 +271,7 @@ class Blockchain {
     if (!Validation.isValidAddress(address)) {
       return { errorMsg: `Invalid address: ${address}` }
     }
-    let transactions = this.getAllTransactions()
-    transactions = transactions
+    const transactions = this.getAllTransactions()
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
     return transactions
@@ -328,7 +334,7 @@ class Blockchain {
     if (!Validation.isValidAddress(address)) {
       return { errorMsg: `Invalid address: ${address}` }
     }
-    const transactions = this.getAccountBalanceByAddress(address)
+    const transactions = this.getTransactionsByAddress(address)
     const balance = {
       safeBalance: 0,
       confirmedBalance: 0,

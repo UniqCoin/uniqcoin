@@ -11,7 +11,9 @@ const nullSignature = [
 const genesisDate = new Date('08/06/2018').toISOString()
 const coinbaseTxVal = 5000000
 
-const faucetAddress = 'notimplemented'
+const faucetAddress = '454a32d21ca64de48126e11129b3a9172e073720'
+const faucetPrivateKey = '355b4ac0bcf5a46d5219376b9f4e220cc2dbd8f81e1d3d55fa84a85897df3495'
+const faucetPublicKey = 'a976cee6802f666221b515e0680378899de4bb442b959444f8618795e774da7d1'
 const faucetTxVal = 1000000000000
 const safeConfirmCount = 6
 const minTransfer = 10
@@ -50,9 +52,10 @@ module.exports = {
   coinbaseTxVal,
   minTransfer,
   faucetAddress,
+  faucetPrivateKey,
+  faucetPublicKey,
   faucetTxVal,
   safeConfirmCount,
   endpoints,
   miningFee,
-  minerPort,
 }

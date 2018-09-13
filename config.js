@@ -34,7 +34,7 @@ const endpoints = [
   { method: 'GET', link: '/peers', description: 'peers desc' },
   { method: 'POST', link: '/peers/add', description: 'peers add desc' },
   { method: 'POST', link: '/peers/notify-new-block', description: 'peers notify new block desc' },
-  { method: 'GET', link: '/mining/get-mining-job', description: 'get mining job desc' },
+  { method: 'GET', link: '/mining/get-mining-job/:minerAddress', description: 'get mining job desc' },
   { method: 'GET', link: '/mining/submit', description: 'mining submit desc' },
   { method: 'GET', link: '/debug/mine/:minerAddress/:difficulty', description: 'debug mine new block desc' },
 ]

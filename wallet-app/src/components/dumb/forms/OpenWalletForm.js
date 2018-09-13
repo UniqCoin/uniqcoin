@@ -6,7 +6,7 @@ const OpenWalletForm = (props) => (
      <InputGroup>
       <Input name="privateKey" id="privateKey" value={props.privateKey} onChange={(event) => props.changeKey(event.target.value)}/>
       <InputGroupAddon addonType="append">
-        <Button onClick={() => props.openWallet()}>Open Wallet</Button>
+        <Button onClick={props.openWallet}>Open Wallet</Button>
       </InputGroupAddon>
     </InputGroup>
   </Form>

@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+const CryptoJS = require('crypto-js')
 const Block = require('./Block')
 const Transaction = require('./Transaction')
 const Validation = require('../helpers/Validation')
@@ -260,11 +261,19 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
+      null,
       address,
     )
-
-    this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
-    return nextBlockCandidate
+    const { blockDataHash } = nextBlockCandidate
+    this.miningJobs[blockDataHash] = nextBlockCandidate
+    return {
+      index: nextBlockIndex,
+      transactionsIncluded: pendingTransactions.length,
+      difficulty: this.cumulativeDifficulty,
+      expectedReward: coinbaseTransaction.value,
+      rewardAddress: address,
+      blockDataHash,
+    }
   }
 
   getTransactionsByAddress(address) {
@@ -298,7 +307,6 @@ class Blockchain {
     block.dateCreated = dateCreated
     block.blockHash = blockHash
     block.blockDataHash = blockDataHash
-
     const isValid = this.isMinedBlockValid(block)
     if (!isValid) return error
 
@@ -310,7 +318,6 @@ class Blockchain {
 
   isMinedBlockValid(block) {
     const lastBlock = this.getLastBlock()
-
     return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
       && block.calculateBlockHash() === block.blockHash
   }
@@ -371,6 +378,33 @@ class Blockchain {
       }
     })
     return balance
+  }
+
+  mineNewBlock(address, difficulty) {
+    const { currentDifficulty } = this
+    this.currentDifficulty = difficulty
+    const miningJob = this.getMiningJob(address)
+    this.currentDifficulty = currentDifficulty
+    const { blockDataHash } = miningJob
+    const isValidHash = blockHash => blockHash.substring(0, difficulty) === Array(difficulty + 1).join('0')
+    const calculateHash = (dateCreated, nonce) => CryptoJS.SHA256(`${blockDataHash}|${dateCreated}|${nonce}`).toString()
+
+    let nonce = -1
+    let nextHash
+    let nextTimeStamp
+
+    do {
+      nonce += 1
+      nextTimeStamp = new Date().toISOString()
+      nextHash = calculateHash(nextTimeStamp, nonce)
+    } while (!isValidHash(nextHash))
+    const minedBlock = this.submitMinedBlock({
+      blockDataHash,
+      nonce,
+      dateCreated: nextTimeStamp,
+      blockHash: nextHash,
+    })
+    return minedBlock
   }
 }
 

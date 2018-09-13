@@ -1,0 +1,26 @@
+.header {
+  height: 20vh;
+  font-size: 3em;
+}
+
+.faucet-form {
+  height: 35vh;
+  color: black;
+}
+
+.faucet-form-submit-result {
+  height: 25vh;
+  color: black;
+}
+
+.half-width {
+  width: 50vw;
+}
+
+.footer {
+  height: 20vh;
+}
+
+.word-wrap {
+  word-wrap: break-word;
+}

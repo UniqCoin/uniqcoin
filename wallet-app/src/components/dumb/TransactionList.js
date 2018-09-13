@@ -1,37 +1,33 @@
 import React from 'react'
 import { ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Label, Row, Col } from 'reactstrap'
 import moment from 'moment'
+import TransactionItem from './TransactionItem'
 
 const TransactionList = (props) => {
-    const { transactions } = props
-    return (
-        <ListGroup>
-            {
-                transactions.length === 0 ? (
-                    <Label>No recent activity</Label>
-                ) :(
-                    transactions.map(transaction => (
-                        <ListGroupItem>
-                            <ListGroupItemHeading>{transaction.value} UC</ListGroupItemHeading>
-                            <ListGroupItemText>
-                                <Row>
-                                    <Col>
-                                      <Label>Date: {moment(transaction.dateCreated).format('MMM DD, YYYY hh:mm:ss a')}</Label>
-                                    </Col>
-                                    <Col>
-                                      <Label>to: {transaction.to}</Label>
-                                    </Col>
-                                     <Col>
-                                      <Label>from: {transaction.from}</Label>
-                                    </Col>
-                                </Row>
-                            </ListGroupItemText>
-                        </ListGroupItem>
-                    ))
-                )
-            }
-        </ListGroup>
-    )
+  const { transactions } = props
+  return (
+    <div style={{ paddingTop: '2%', flexGrow: 1, overflowY: 'scroll', height: '60vh' }}>
+      <ListGroup flush>
+        {
+          transactions.length <= 0 ? (
+            <ListGroupItem style={{ backgroundColor: `#EEEEEE` }}> No recent activity</ListGroupItem>
+          ) : (
+              transactions.map((transaction, i) => {
+                const odd = ((i + 1) % 2) === 0
+                return (<TransactionItem
+                  color={odd ? '' : '#F5F5F5'}
+                  to={transaction.to}
+                  from={transaction.from}
+                  value={transaction.value}
+                  dateCreated={transaction.dateCreated}
+                />)
+              }
+              )
+            )
+        }
+      </ListGroup>
+    </div>
+  )
 }
 
 export default TransactionList

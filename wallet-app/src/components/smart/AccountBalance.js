@@ -3,7 +3,8 @@ import { Container, Row } from 'reactstrap'
 import BalanceView from '../dumb/BalanceView'
 import TransactionList from '../dumb/TransactionList'
 import nodeServices from '../../nodeServices.js'
-
+import moment from 'moment';
+// import moment from ''
 class AccountBalance extends Component {
   constructor(props) {
     super(props)
@@ -30,14 +31,16 @@ class AccountBalance extends Component {
     const { confirmedBalance, pendingBalance } = balances
     return (
       <Container>
-        <div style={{paddingTop: '5%'}}>
+        <div style={{ paddingTop: '5%' }}>
           <BalanceView
             confirmedBalance={confirmedBalance}
             pendingBalance={pendingBalance}
           />
         </div>
+        <h5 style={{ paddingTop: '2%' }}>Transactions</h5>
         <TransactionList
-          transactions={transactions}
+          transactions={transactions.sort((a, b) => moment(a.dateCreated).unix() < moment(b.dateCreated).unix())
+          }
         />
       </Container>
     )

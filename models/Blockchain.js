@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+const CryptoJS = require('crypto-js')
 const Block = require('./Block')
 const Transaction = require('./Transaction')
 const Validation = require('../helpers/Validation')
@@ -49,12 +50,11 @@ class Blockchain {
   }
 
   get cumulativeDifficulty() {
-    return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
-    // let cumulativeDiff = 0
-    // this.blocks.forEach((block) => {
-    //   cumulativeDiff += 16 ** block.difficulty
-    // })
-    // return cumulativeDiff
+    // return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
+    return this.blocks.reduce((acc, cur) => {
+      acc += 16 ** cur.difficulty
+      return acc
+    }, 0)
   }
 
   addNewTransaction(transaction) {
@@ -68,6 +68,8 @@ class Blockchain {
       senderPubKey,
       senderSignature,
     } = transaction
+
+    const validKeys = new Set(['from', 'to', 'value', 'fee', 'dateCreated', 'sender', 'senderPubKey', 'senderSignature', 'transactionDataHash'])
 
     if (!Validation.isValidAddress(from)) {
       return { errorMsg: `Invalid sender address: ${from}` }
@@ -91,10 +93,16 @@ class Blockchain {
       return { errorMsg: `Invalid transaction signature: ${senderSignature}` }
     }
     if (data && typeof data !== 'string') {
+      validKeys.push('data')
       return { errorMsg: `Invalid data: ${data}` }
     }
     if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee) {
       return { errorMsg: 'Insufficient balance' }
+    }
+
+    const invalidKeys = new Set([...Object.keys(transaction)].filter(x => !validKeys.has(x)))
+    if (invalidKeys.size > 0) {
+      return { errorMsg: `Invalid transaction data: ${transaction}` }
     }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
@@ -206,7 +214,7 @@ class Blockchain {
   /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
     if (!Validation.isValidAddress(address)) {
-      return { errorMsg: `Invalid sender address: ${address}` }
+      return { errorMsg: `Invalid miner address: ${address}` }
     }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
@@ -253,22 +261,29 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
+      null,
       address,
     )
-
-    this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
-    return nextBlockCandidate
+    const { blockDataHash } = nextBlockCandidate
+    this.miningJobs[blockDataHash] = nextBlockCandidate
+    return {
+      index: nextBlockIndex,
+      transactionsIncluded: pendingTransactions.length,
+      difficulty: this.cumulativeDifficulty,
+      expectedReward: coinbaseTransaction.value,
+      rewardAddress: address,
+      blockDataHash,
+    }
   }
 
   getTransactionsByAddress(address) {
     if (!Validation.isValidAddress(address)) {
       return { errorMsg: `Invalid address: ${address}` }
     }
-    let transactions = this.getAllTransactions()
-    transactions = transactions
+    const transactions = this.getAllTransactions()
+    return transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
-    return transactions
   }
 
   removePendingTransactions(transactions) {
@@ -292,7 +307,6 @@ class Blockchain {
     block.dateCreated = dateCreated
     block.blockHash = blockHash
     block.blockDataHash = blockDataHash
-
     const isValid = this.isMinedBlockValid(block)
     if (!isValid) return error
 
@@ -304,7 +318,6 @@ class Blockchain {
 
   isMinedBlockValid(block) {
     const lastBlock = this.getLastBlock()
-
     return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
       && block.calculateBlockHash() === block.blockHash
   }
@@ -325,6 +338,9 @@ class Blockchain {
   }
 
   getAccountBalanceByAddress(address) {
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid address: ${address}` }
+    }
     const transactions = this.getTransactionsByAddress(address)
     const balance = {
       safeBalance: 0,
@@ -362,6 +378,33 @@ class Blockchain {
       }
     })
     return balance
+  }
+
+  mineNewBlock(address, difficulty) {
+    const { currentDifficulty } = this
+    this.currentDifficulty = difficulty
+    const miningJob = this.getMiningJob(address)
+    this.currentDifficulty = currentDifficulty
+    const { blockDataHash } = miningJob
+    const isValidHash = blockHash => blockHash.substring(0, difficulty) === Array(difficulty + 1).join('0')
+    const calculateHash = (dateCreated, nonce) => CryptoJS.SHA256(`${blockDataHash}|${dateCreated}|${nonce}`).toString()
+
+    let nonce = -1
+    let nextHash
+    let nextTimeStamp
+
+    do {
+      nonce += 1
+      nextTimeStamp = new Date().toISOString()
+      nextHash = calculateHash(nextTimeStamp, nonce)
+    } while (!isValidHash(nextHash))
+    const minedBlock = this.submitMinedBlock({
+      blockDataHash,
+      nonce,
+      dateCreated: nextTimeStamp,
+      blockHash: nextHash,
+    })
+    return minedBlock
   }
 }
 

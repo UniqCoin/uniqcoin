@@ -20,7 +20,7 @@ const get = (endpoint) => {
 
 const nodeServices = {
   sendSignedTransaction: (transaction) => {
-    return post(transaction, '/transaction/send')
+    return post(transaction, '/transactions/send')
   },
   getBalances: (address) => {
     return get(`/address/${address}/balance`)

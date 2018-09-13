@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+const CryptoJS = require('crypto-js')
 const Block = require('./Block')
 const Transaction = require('./Transaction')
 const Validation = require('../helpers/Validation')
@@ -49,11 +50,11 @@ class Blockchain {
   }
 
   get cumulativeDifficulty() {
-    let cumulativeDiff = 0
-    this.blocks.forEach((block) => {
-      cumulativeDiff += 16 ** block.difficulty
-    })
-    return cumulativeDiff
+    // return this.cumulativeDifficulty + (16 ** this.getLastBlock().difficulty)
+    return this.blocks.reduce((acc, cur) => {
+      acc += 16 ** cur.difficulty
+      return acc
+    }, 0)
   }
 
   addNewTransaction(transaction) {
@@ -68,22 +69,51 @@ class Blockchain {
       senderSignature,
     } = transaction
 
-    // TODO: add validations
+    const validKeys = new Set(['from', 'to', 'value', 'fee', 'dateCreated', 'sender', 'senderPubKey', 'senderSignature', 'transactionDataHash'])
+
     if (!Validation.isValidAddress(from)) {
       return { errorMsg: `Invalid sender address: ${from}` }
     }
     if (!Validation.isValidAddress(to)) {
       return { errorMsg: `Invalid receiver address: ${to}` }
     }
+    if (!Validation.isValidAmountTransfer(value)) {
+      return { errorMsg: `Invalid amount value: ${value}` }
+    }
+    if (!Validation.isValidFee(fee)) {
+      return { errorMsg: `Invalid transaction fee: ${fee}` }
+    }
+    if (!Validation.isValidDate(dateCreated)) {
+      return { errorMsg: `Date is invalid or must be an ISO string: ${dateCreated}` }
+    }
+    if (!Validation.isValidPublicAddress(senderPubKey)) {
+      return { errorMsg: `Invalid sender public key: ${senderPubKey}` }
+    }
+    if (!Validation.isValidSignature(senderSignature)) {
+      return { errorMsg: `Invalid transaction signature: ${senderSignature}` }
+    }
+    if (data && typeof data !== 'string') {
+      validKeys.push('data')
+      return { errorMsg: `Invalid data: ${data}` }
+    }
+    if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee) {
+      return { errorMsg: 'Insufficient balance' }
+    }
+
+    const invalidKeys = new Set([...Object.keys(transaction)].filter(x => !validKeys.has(x)))
+    if (invalidKeys.size > 0) {
+      return { errorMsg: `Invalid transaction data: ${transaction}` }
+    }
 
     const newTransaction = new Transaction(from, to, value, fee, dateCreated, data,
       senderPubKey, senderSignature)
 
+    if (!newTransaction.verifySignature()) {
+      return { errorMsg: `Invalid signature: ${senderSignature}` }
+    }
     if (this.getTransactionByHash(newTransaction.transactionDataHash)) {
       return { errorMsg: `Duplicate transaction: ${newTransaction.transactionDataHash}` }
     }
-
-    // TODO: add more validations
 
     this.pendingTransactions.push(newTransaction)
     return newTransaction
@@ -183,6 +213,9 @@ class Blockchain {
 
   /* eslint-disable no-restricted-syntax */
   getMiningJob(address) {
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid miner address: ${address}` }
+    }
     const nextBlockIndex = this.blocks.length
     /* get pending transactions in json and parse and sort it */
     let pendingTransactions = JSON.parse(JSON.stringify(this.pendingTransactions))
@@ -228,26 +261,38 @@ class Blockchain {
       pendingTransactions,
       this.currentDifficulty,
       prevBlockHash,
-      address
+      null,
+      address,
     )
-
-    this.miningJobs[nextBlockCandidate.blockDataHash] = nextBlockCandidate
-    return nextBlockCandidate
+    const { blockDataHash } = nextBlockCandidate
+    this.miningJobs[blockDataHash] = nextBlockCandidate
+    return {
+      index: nextBlockIndex,
+      transactionsIncluded: pendingTransactions.length,
+      difficulty: this.cumulativeDifficulty,
+      expectedReward: coinbaseTransaction.value,
+      rewardAddress: address,
+      blockDataHash,
+    }
   }
 
   getTransactionsByAddress(address) {
-    // TODO: add validations
-    let transactions = this.getAllTransactions()
-    transactions = transactions
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid address: ${address}` }
+    }
+    const transactions = this.getAllTransactions()
+    return transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
-    return { address, transactions }
   }
 
   removePendingTransactions(transactions) {
-    for (const t of transactions) {
-      this.pendingTransactions = this.pendingTransactions.filter(item => item.transactionDataHash !== t.transactionDataHash)
-    }
+    const minedTransactionHashes = transactions.reduce((acc, cur) => {
+      acc.add(cur.transactionDataHash)
+      return acc
+    }, new Set())
+    this.pendingTransactions = this.pendingTransactions
+      .filter(tran => !minedTransactionHashes.has(tran.transactionDataHash))
   }
 
   submitMinedBlock(minedBlock) {
@@ -262,8 +307,7 @@ class Blockchain {
     block.dateCreated = dateCreated
     block.blockHash = blockHash
     block.blockDataHash = blockDataHash
-
-    const isValid = this.isBlockValid(block)
+    const isValid = this.isMinedBlockValid(block)
     if (!isValid) return error
 
     this.blocks.push(block)
@@ -272,9 +316,8 @@ class Blockchain {
     return { message: `Block accepted, reward paid: ${block.transactions[0].value} microcoins` }
   }
 
-  isBlockValid(block) {
+  isMinedBlockValid(block) {
     const lastBlock = this.getLastBlock()
-
     return block.index === this.blocks.length && lastBlock.blockHash === block.prevBlockHash
       && block.calculateBlockHash() === block.blockHash
   }
@@ -286,10 +329,6 @@ class Blockchain {
       .filter(transaction => !minedTransactionHashes.has(transaction.transactionDataHash))
   }
 
-  updatePendingTransactions() {
-
-  }
-
   removePendingTransaction(transaction) {
     const indexOfTransaction = this.pendingTransactions
       .findIndex(p => p.transactionDataHash === transaction.transactionDataHash)
@@ -299,7 +338,10 @@ class Blockchain {
   }
 
   getAccountBalanceByAddress(address) {
-    const transactions = this.getAccountBalanceByAddress(address)
+    if (!Validation.isValidAddress(address)) {
+      return { errorMsg: `Invalid address: ${address}` }
+    }
+    const transactions = this.getTransactionsByAddress(address)
     const balance = {
       safeBalance: 0,
       confirmedBalance: 0,
@@ -336,6 +378,33 @@ class Blockchain {
       }
     })
     return balance
+  }
+
+  mineNewBlock(address, difficulty) {
+    const { currentDifficulty } = this
+    this.currentDifficulty = difficulty
+    const miningJob = this.getMiningJob(address)
+    this.currentDifficulty = currentDifficulty
+    const { blockDataHash } = miningJob
+    const isValidHash = blockHash => blockHash.substring(0, difficulty) === Array(difficulty + 1).join('0')
+    const calculateHash = (dateCreated, nonce) => CryptoJS.SHA256(`${blockDataHash}|${dateCreated}|${nonce}`).toString()
+
+    let nonce = -1
+    let nextHash
+    let nextTimeStamp
+
+    do {
+      nonce += 1
+      nextTimeStamp = new Date().toISOString()
+      nextHash = calculateHash(nextTimeStamp, nonce)
+    } while (!isValidHash(nextHash))
+    const minedBlock = this.submitMinedBlock({
+      blockDataHash,
+      nonce,
+      dateCreated: nextTimeStamp,
+      blockHash: nextHash,
+    })
+    return minedBlock
   }
 }
 

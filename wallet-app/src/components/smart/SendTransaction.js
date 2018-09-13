@@ -5,6 +5,7 @@ import { Container, Row, Col, Form, InputGroup, InputGroupAddon, InputGroupText,
 import { transactionFee } from '../../config.js'
 import nodeServices from '../../nodeServices';
 import Wallet from '../../models/Wallet'
+
 import SendTransactionForm from '../dumb/forms/SendTransactionForm'
 
 const secp256k1 = new elliptic.ec('secp256k1')
@@ -42,8 +43,8 @@ class SendTransaction extends Component {
         value: '',
         fee: transactionFee,
         dateCreated: null,
-        data: '',
-        senderPubkey: wallet.publicKey,
+        data: null,
+        senderPubKey: wallet.publicKey,
       }
       this.setState({ transactionData })
     }
@@ -51,12 +52,22 @@ class SendTransaction extends Component {
   
   signTransaction() {
     const { transactionData } = this.state
+    const { from, to, value, fee, data, senderPubKey } = transactionData
+    const transaction = {
+      from,
+      to,
+      value: parseInt(value),
+      fee,
+      dateCreated: new Date().toISOString(),
+      data,
+      senderPubKey
+    }
+    if (!data) delete transaction.data
     const wallet = JSON.parse(sessionStorage.getItem('wallet'))
-    const transactionJSON = JSON.stringify(transactionData)
+    const transactionJSON = JSON.stringify(transaction)
     const transactionDataHash = CryptoJS.SHA256(transactionJSON).toString()
     const senderSignature = this.signData(transactionDataHash, wallet.privateKey)
-    const dateCreated = new Date().toISOString()
-    const signedTransaction = Object.assign(transactionData, { transactionDataHash, senderSignature, dateCreated })
+    const signedTransaction = Object.assign(transaction, { transactionDataHash, senderSignature })
     this.setState({ signedTransaction })
   }
 
@@ -68,10 +79,14 @@ class SendTransaction extends Component {
 
   async sendTransaction() {
     const { signedTransaction } = this.state
-    const response = await nodeServices.sendSignedTransaction(signedTransaction)
-    const { errorMsg } = response
-    if (errorMsg) this.setState({ errorMsg })
-    else this.setState({ transactionHash: response })
+    signedTransaction.value = parseInt(signedTransaction.value)
+    try {
+      const response = await nodeServices.sendSignedTransaction(signedTransaction)
+      this.setState({ transactionHash: response.data })
+    } catch (error) {
+      // TODO: add showing of error
+      console.log(error.response.data.message)
+    }
   }
 
   renderSignedTransaction(signedTransaction) {

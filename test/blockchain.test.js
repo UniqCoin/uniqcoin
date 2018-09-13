@@ -4,7 +4,7 @@ const CryptoJS = require('crypto-js')
 const Blockchain = require('../models/Blockchain')
 const Block = require('../models/Block')
 const Transaction = require('../models/Transaction')
-
+const config = require('../config')
 const testData = require('./testData')
 
 const { assert } = chai
@@ -31,7 +31,7 @@ describe('Blockchain unit test: ', () => {
 
   describe('addNewBlock', () => {
     it('should add a block', () => {
-      const transaction = new Transaction(wallet1.address, wallet2.address, 0.5, 0.0005, new Date(), '', wallet1.publicKey, sampleSignature)
+      const transaction = new Transaction(wallet1.address, wallet2.address, 50, 10, new Date(), '', wallet1.publicKey, sampleSignature)
       const block = new Block(1, [transaction], 1, '', '', '', 5, new Date(), '')
       blockChain.addNewBlock(block)
       assert.equal(blockChain.blocks.length, 2)
@@ -49,14 +49,13 @@ describe('Blockchain unit test: ', () => {
 
     it('should add a new valid transaction', () => {
       clearPendingTransactions()
-      const transaction = new Transaction(wallet1.address, wallet2.address, 0.3, 0.0001, timeStamp, wallet1.publicKey, sampleSignature)
-      blockChain.addNewTransaction(transaction)
+      const transaction = new Transaction(config.nullAddress, wallet2.address, 50, 10, new Date().toISOString(), '', config.nullPubKey, config.nullSignature)
       assert.equal(blockChain.pendingTransactions.length, 1)
       assert.equal(JSON.stringify(blockChain.pendingTransactions.pop()), JSON.stringify(transaction))
     })
     it('should not add an invalid transaction', () => {
       clearPendingTransactions()
-      const transaction = new Transaction('123', '456', 0.3, 0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+      const transaction = new Transaction('123', '456', 30, 10, timeStamp, wallet1.publicKey, sampleSignature)
       const result = blockChain.addNewTransaction(transaction)
       assert.isOk(result.hasOwnProperty('errorMsg'))
       assert.equal(blockChain.pendingTransactions.length, 0)
@@ -107,7 +106,8 @@ describe('Blockchain unit test: ', () => {
 
     it('should get the list of all the transactions', () => {
       clearPendingTransactions()
-      const transaction = new Transaction(wallet1.address, wallet2.address, 0.3, 0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+      const transaction = new Transaction(wallet1.address, wallet2.address, 30, 10, timeStamp, wallet1.publicKey, sampleSignature)
+
       blockChain.addNewTransaction(transaction)
       const transactionDataHash = CryptoJS.SHA256(JSON.stringify({
         from: transaction.from,
@@ -137,8 +137,8 @@ describe('Blockchain unit test: ', () => {
     })
     it('should not include the pending transactions', () => {
       clearPendingTransactions()
-      const transaction = new Transaction(wallet1.address, wallet2.address, 0.3,
-        0.0001, timeStamp, wallet1.publicKey, sampleSignature)
+      const transaction = new Transaction(wallet1.address, wallet2.address, 3,
+        10, timeStamp, wallet1.publicKey, sampleSignature)
       blockChain.addNewTransaction(transaction)
       const transactionDataHash = CryptoJS.SHA256(JSON.stringify({
         from: transaction.from,
@@ -185,17 +185,25 @@ describe('Blockchain unit test: ', () => {
   })
 
   describe('getMiningJob', () => {
+    it('should return the next block candidate', () => {
+      const mineBlock = blockChain.getMiningJob(config.nullAddress)
+      assert.instanceOf(mineBlock, Block)
+    })
 
+    it('should return an error message if the address is invalid', () => {
+      const invalidAddress = 'invalidaddress'
+      assert.equal(blockChain.getMiningJob(invalidAddress).errorMsg, `Invalid miner address: ${invalidAddress}`)
+    })
   })
 
   describe('getTransactionsByAddress', () => {
     const timeStamp = new Date().toISOString()
-    const transaction1 = new Transaction(wallet1.address, wallet2.address, 0.3,
-      0.0001, timeStamp, wallet1.publicKey, sampleSignature)
-    const transaction2 = new Transaction(wallet2.address, wallet1.address, 0.1,
-      0.0002, timeStamp, wallet2.publicKey, sampleSignature)
-    const transaction3 = new Transaction(wallet1.address, '', 0.2,
-      0.0003, timeStamp, wallet1.publicKey, sampleSignature)
+    const transaction1 = new Transaction(wallet1.address, wallet2.address, 3,
+      10, timeStamp, wallet1.publicKey, sampleSignature)
+    const transaction2 = new Transaction(wallet2.address, wallet1.address, 1,
+      20, timeStamp, wallet2.publicKey, sampleSignature)
+    const transaction3 = new Transaction(wallet1.address, '', 2,
+      30, timeStamp, wallet1.publicKey, sampleSignature)
 
     it('should return the list of transactions by address', () => {
       clearPendingTransactions()
@@ -216,11 +224,12 @@ describe('Blockchain unit test: ', () => {
   describe('submitMinedBlock', () => {
     const block = new Block(1, [], 1, '', '', '', 5, new Date(), '')
     it('should return a message that the block is accepted and reward is paid', () => {
-
+      const mineBlock = blockChain.getMiningJob(config.nullAddress)
+      assert.equal(blockChain.submitMinedBlock(mineBlock).message, `Block accepted, reward paid: ${mineBlock.transactions[0].value} microcoins`)
     })
 
     it('should return an error message that the block is not found or has already mined', () => {
-
+      assert.equal(blockChain.submitMinedBlock(block).errorMsg, 'Block not found or already mined')
     })
   })
 })

@@ -281,9 +281,9 @@ class Blockchain {
       return { errorMsg: `Invalid address: ${address}` }
     }
     const transactions = this.getAllTransactions()
-    return transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
+    return transactions
   }
 
   removePendingTransactions(transactions) {

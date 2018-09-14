@@ -20,7 +20,7 @@ class AccountBalance extends Component {
     try {
       balances = await nodeServices.getBalances(wallet.address)
       transactions = await nodeServices.getTransactions(wallet.address)
-      this.setState({ balances: balances.data, transactions: transactions.data.transactions })
+      this.setState({ balances: balances.data, transactions: transactions.data })
     } catch (error) {
       console.log(error)
     }
@@ -29,6 +29,7 @@ class AccountBalance extends Component {
   render() {
     const { balances, transactions } = this.state
     const { confirmedBalance, pendingBalance } = balances
+   
     return (
       <Container>
         <div style={{ paddingTop: '5%' }}>
@@ -38,10 +39,13 @@ class AccountBalance extends Component {
           />
         </div>
         <h5 style={{ paddingTop: '2%' }}>Transactions</h5>
+        {Object.keys(transactions).length &&
         <TransactionList
-          transactions={transactions.sort((a, b) => moment(a.dateCreated).unix() < moment(b.dateCreated).unix())
+          address={transactions.address}
+          transactions={transactions.transactions.sort((a, b) => moment(a.dateCreated).unix() < moment(b.dateCreated).unix())
           }
         />
+        }
       </Container>
     )
   }

@@ -14,7 +14,7 @@ const styles = {
  }
 
 const TransactionList = (props) => {
-  const { transactions } = props
+  const { transactions, address } = props
   return (
     <div style={{ paddingTop: '2%', flexGrow: 1, overflowY: 'auto', height: '60vh' }}>
       <ListGroup flush>
@@ -30,6 +30,7 @@ const TransactionList = (props) => {
                   from={transaction.from}
                   value={transaction.value}
                   dateCreated={transaction.dateCreated}
+                  address={address}
                 />)
               }
               )

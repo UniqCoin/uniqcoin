@@ -1,5 +1,5 @@
 import React from 'react'
-import { ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Label, Row, Col } from 'reactstrap'
+import { ListGroup, ListGroupItem, ListGroupI, Label, Row, Col } from 'reactstrap'
 import moment from 'moment'
 const styles = {
   itemWrap: {
@@ -11,7 +11,7 @@ const TransactionItem = (props) => (
   <ListGroupItem style={{ backgroundColor: `${props.color}` }}>
     <Row>
       <Col lg='2' md='3' sm='3' xs='12'>
-        Recevied Value: {props.value} UC
+        {props.address === props.to ? 'Transferred': 'Received'} Value: {props.value} UC
         </Col>
       <Col lg='4' md='6' sm='6' xs='12' >
         <p style={styles.itemWrap}>

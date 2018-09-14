@@ -342,6 +342,7 @@ class Blockchain {
       return { errorMsg: `Invalid address: ${address}` }
     }
     const transactions = this.getTransactionsByAddress(address)
+    console.log(transactions)
     const balance = {
       safeBalance: 0,
       confirmedBalance: 0,
@@ -357,7 +358,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance += transaction.value
         }
-        if (transaction.minedInBlockIndex >= 1) {
+        if (transaction.minedInBlockIndex >= 0) {
           balance.confirmedBalance += transaction.value
         }
       }

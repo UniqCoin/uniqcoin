@@ -20,7 +20,7 @@ class AccountBalance extends Component {
     try {
       balances = await nodeServices.getBalances(wallet.address)
       transactions = await nodeServices.getTransactions(wallet.address)
-      this.setState({ balances: balances.data, transactions: transactions.data })
+      this.setState({ balances: balances.data, transactions: transactions.data.transactions })
     } catch (error) {
       console.log(error)
     }

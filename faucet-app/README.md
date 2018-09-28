@@ -1,4 +1,4 @@
-# new-proj
+# UniqCoin Faucet
 
 > 
 

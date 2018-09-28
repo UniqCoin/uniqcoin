@@ -68,7 +68,6 @@ class Blockchain {
       senderPubKey,
       senderSignature,
     } = transaction
-
     const validKeys = new Set(['from', 'to', 'value', 'fee', 'dateCreated', 'sender', 'senderPubKey', 'senderSignature', 'transactionDataHash'])
 
     if (!Validation.isValidAddress(from)) {
@@ -96,7 +95,8 @@ class Blockchain {
       validKeys.push('data')
       return { errorMsg: `Invalid data: ${data}` }
     }
-    if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee) {
+    if (this.getAccountBalanceByAddress(from).confirmedBalance < value + fee
+      && this.getAccountBalanceByAddress(from).safeBalance < value + fee) {
       return { errorMsg: 'Insufficient balance' }
     }
 
@@ -269,7 +269,7 @@ class Blockchain {
     return {
       index: nextBlockIndex,
       transactionsIncluded: pendingTransactions.length,
-      difficulty: this.cumulativeDifficulty,
+      difficulty: this.currentDifficulty,
       expectedReward: coinbaseTransaction.value,
       rewardAddress: address,
       blockDataHash,
@@ -281,9 +281,9 @@ class Blockchain {
       return { errorMsg: `Invalid address: ${address}` }
     }
     const transactions = this.getAllTransactions()
-    return transactions
       .filter(transaction => transaction.from === address || transaction.to === address)
       .sort((a, b) => a.dateCreated.localeCompare(b.dateCreated))
+    return transactions
   }
 
   removePendingTransactions(transactions) {
@@ -342,6 +342,7 @@ class Blockchain {
       return { errorMsg: `Invalid address: ${address}` }
     }
     const transactions = this.getTransactionsByAddress(address)
+    console.log(transactions)
     const balance = {
       safeBalance: 0,
       confirmedBalance: 0,
@@ -357,7 +358,7 @@ class Blockchain {
         if (transaction.minedInBlockIndex <= safeValue && transaction.transferSuccessful) {
           balance.safeBalance += transaction.value
         }
-        if (transaction.minedInBlockIndex >= 1) {
+        if (transaction.minedInBlockIndex >= 0) {
           balance.confirmedBalance += transaction.value
         }
       }

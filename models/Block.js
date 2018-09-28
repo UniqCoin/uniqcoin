@@ -63,7 +63,7 @@ class Block {
       to: transaction.to,
       value: transaction.value,
       fee: transaction.fee,
-      dateCreated: new Date(transaction.dateCreated).toISOString(),
+      dateCreated: transaction.dateCreated,
       data: transaction.data,
       senderPubKey: transaction.senderPubKey,
       transactionDataHash: transaction.transactionDataHash,

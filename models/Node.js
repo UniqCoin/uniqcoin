@@ -45,14 +45,19 @@ class Node {
   }
 
   isValidPeerBlockchain(peerBlockchainData, peerInfo) {
-    const {
-      index, transactions, difficulty,
-      minedBy, nonce, dateCreated,
-    } = peerBlockchainData.blocks[0]
-    const peerGenesisBlock = new Block(index, transactions, difficulty,
-      undefined, undefined, minedBy, nonce, dateCreated, undefined)
-    const peerGenesisBlockHash = peerGenesisBlock.calculateBlockHash()
-    const currentGenesisBlockHash = this.chain.blocks[0].calculateBlockHash()
+    const getBlockDataHash = (blockData) => {
+      const {
+        index, transactions, difficulty,
+        minedBy, nonce, dateCreated,
+      } = blockData
+      const block = new Block(index, transactions, difficulty,
+        undefined, undefined, minedBy, nonce, dateCreated, undefined)
+
+      return block.calculateBlockHash()
+    }
+
+    const peerGenesisBlockHash = getBlockDataHash(peerBlockchainData.blocks[0])
+    const currentGenesisBlockHash = getBlockDataHash(this.chain.blocks[0])
 
     if (peerGenesisBlockHash !== currentGenesisBlockHash) {
       return new Error('Invalid genesis')
@@ -102,14 +107,13 @@ class Node {
       return new Error('Unable to fetch peer blockchain')
     }
 
-    // TODO peer blockchain validation
     const peerValidationResult = this.isValidPeerBlockchain(peerBlockchainData, peerInfo)
 
     if (peerValidationResult instanceof Error) {
       return peerValidationResult
     }
 
-    this.chain = peerBlockchainData
+    this.chain.blocks = peerBlockchainData.blocks
 
     const peerNotificationResult = this.notifyPeersOfNewChain(peerInfo)
 
@@ -133,8 +137,10 @@ class Node {
     }
 
     let a = peerPendingTransactions.length
+
     while (a--) {
       let isUnique = true
+
       let b = this.chain.pendingTransactions.length
       while (b--) {
         if (this.chain.pendingTransactions[b].transactionDataHash
@@ -362,10 +368,17 @@ class Node {
       res.json(miningJob)
     })
 
-    app.post('/mining/submit', (req, res) => {
-      // TODO
+    app.post('/mining/submit', async (req, res) => {
       const minedBlock = req.body
       const result = this.chain.submitMinedBlock(minedBlock)
+
+      try {
+        await this.notifyPeersOfNewChain(this.info)
+      } catch (error) {
+        console.log(error)
+      }
+
+
       res.send(result)
     })
 

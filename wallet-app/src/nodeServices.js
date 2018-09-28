@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { nodeServerHost, nodePort } from './config'
 
-const url = `http://${nodeServerHost}:${nodePort}`
+const url = `http://${nodeServerHost}:3001`
 
 const post = async (data, endpoint) => {
   const options = {

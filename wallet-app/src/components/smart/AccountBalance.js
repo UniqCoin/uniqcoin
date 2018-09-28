@@ -29,7 +29,11 @@ class AccountBalance extends Component {
   render() {
     const { balances, transactions } = this.state
     const { confirmedBalance, pendingBalance } = balances
-   
+    let exactTransaction = []
+    if (transactions.transactions) {
+      exactTransaction = transactions.transactions.sort((a, b) => moment(a.dateCreated).unix() < moment(b.dateCreated).unix())
+    }
+    
     return (
       <Container>
         <div style={{ paddingTop: '5%' }}>
@@ -39,13 +43,10 @@ class AccountBalance extends Component {
           />
         </div>
         <h5 style={{ paddingTop: '2%' }}>Transactions</h5>
-        {Object.keys(transactions).length &&
         <TransactionList
-          address={transactions.address}
-          transactions={transactions.transactions.sort((a, b) => moment(a.dateCreated).unix() < moment(b.dateCreated).unix())
-          }
+          address={transactions.address || ''}
+          transactions={exactTransaction}
         />
-        }
       </Container>
     )
   }

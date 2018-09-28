@@ -1,13 +1,22 @@
 import React from 'react'
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 
+const styles = {
+  h6: {
+    wordWrap: 'break-word',
+    margin: '5px',
+    borderRadius: '3px',
+  }
+}
 const SendTransactionForm = (props) => {
   const { from, to, value, data } = props.transactionData
   return (
     <Form>
       <FormGroup>
         <Label for="sender address">Sender</Label>
-        <Input type="text" value={from} onChange={props.handleInputChange} id="from" disabled/>
+        <h6 style={styles.h6}>
+          {from}
+        </h6>
       </FormGroup>
       <FormGroup>
         <Label for="recipient address">Recipient</Label>
